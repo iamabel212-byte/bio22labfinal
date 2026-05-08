@@ -1,0 +1,2168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Lab Final Practice Exam</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', system-ui, sans-serif; background: #0f1117; color: #e8eaf0; min-height: 100vh; padding: 1.5rem 1rem 3rem; }
+  .container { max-width: 720px; margin: 0 auto; }
+  h1 { font-size: 22px; font-weight: 600; color: #fff; margin-bottom: 4px; }
+  .subtitle { font-size: 13px; color: #666; margin-bottom: 1.5rem; }
+  .top-tabs { display: flex; gap: 6px; margin-bottom: 1.5rem; background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 5px; }
+  .top-tab { flex: 1; padding: 9px 12px; border-radius: 8px; border: none; background: transparent; font-size: 13px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .top-tab.active { background: #252836; color: #3ecf8e; border: 1px solid #2a3a30; }
+  .top-tab:hover:not(.active) { color: #aaa; }
+  .top-panel { display: none; }
+  .top-panel.active { display: block; }
+  .score-bar { display: flex; align-items: center; gap: 16px; background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 12px; padding: 14px 18px; margin-bottom: 2rem; position: sticky; top: 0.5rem; z-index: 10; }
+  .score-circle { width: 52px; height: 52px; border-radius: 50%; background: conic-gradient(#3ecf8e calc(var(--pct, 0) * 1%), #2a2d3a 0); display: flex; align-items: center; justify-content: center; transition: background 0.4s; flex-shrink: 0; }
+  .score-inner { width: 40px; height: 40px; border-radius: 50%; background: #1a1d27; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 700; color: #3ecf8e; }
+  .score-text { font-size: 14px; color: #aaa; }
+  .score-text strong { color: #e8eaf0; font-size: 16px; display: block; }
+  .section-label { font-size: 10px; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; color: #3ecf8e; margin: 2.5rem 0 1rem; padding-bottom: 8px; border-bottom: 1px solid #2a2d3a; }
+  .q-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; transition: border-color 0.2s; }
+  .q-card.answered-correct { border-color: #3ecf8e44; }
+  .q-card.answered-wrong { border-color: #ff6b6b44; }
+  .q-num { font-size: 11px; color: #555; margin-bottom: 6px; font-weight: 600; letter-spacing: 0.05em; text-transform: uppercase; }
+  .q-text { font-size: 15px; color: #d0d4e0; line-height: 1.6; margin-bottom: 14px; }
+  .q-text span.key { color: #7eb8f7; font-weight: 600; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .opt-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid #3a3d4e; background: #252836; font-size: 13px; color: #c8ccd8; cursor: pointer; transition: all 0.15s; font-family: inherit; }
+  .opt-btn:hover:not(.disabled) { background: #2e3245; border-color: #4a4d60; color: #fff; }
+  .opt-btn.correct { background: #0e3024; border-color: #3ecf8e; color: #3ecf8e; font-weight: 600; }
+  .opt-btn.wrong { background: #2d1414; border-color: #ff6b6b; color: #ff6b6b; }
+  .opt-btn.disabled { cursor: default; pointer-events: none; }
+  .feedback { font-size: 12px; margin-top: 10px; padding: 8px 12px; border-radius: 8px; display: none; line-height: 1.5; }
+  .feedback.show { display: block; }
+  .feedback.right { background: #0e3024; color: #3ecf8e; }
+  .feedback.wrong-f { background: #2d1414; color: #ff9999; }
+  .reveal-btn { padding: 7px 16px; border-radius: 8px; border: 1px solid #3a3d4e; background: transparent; font-size: 13px; color: #888; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .reveal-btn:hover { background: #252836; color: #c8ccd8; border-color: #4a4d60; }
+  .answer-box { margin-top: 12px; padding: 14px 16px; border-radius: 10px; background: #13181f; border-left: 3px solid #3ecf8e; font-size: 13px; line-height: 1.7; color: #b8bcc8; display: none; }
+  .answer-box.show { display: block; }
+  .answer-box strong { color: #e0e4f0; font-weight: 600; }
+  .answer-box .disease { margin-bottom: 10px; }
+  .answer-box .disease:last-child { margin-bottom: 0; }
+  .cell-stage { display: flex; justify-content: center; margin: 8px 0 14px; }
+  .ap-wrap { display: none; margin-top: 12px; }
+  .ap-wrap.show { display: block; }
+  .ap-wrap svg { width: 100%; max-width: 580px; display: block; margin: 0 auto; }
+  .hint { font-size: 11px; color: #555; margin-top: 8px; font-style: italic; }
+  .sub-tabs { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .sub-tab { padding: 7px 14px; border-radius: 20px; border: 1px solid #2a2d3a; background: transparent; font-size: 12px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .sub-tab.active { background: #1e2d22; border-color: #3ecf8e; color: #3ecf8e; }
+  .sub-tab:hover:not(.active) { color: #aaa; border-color: #3a3d4e; }
+  .sub-panel { display: none; }
+  .sub-panel.active { display: block; }
+  .sub-tab2 { padding: 7px 14px; border-radius: 20px; border: 1px solid #2a2d3a; background: transparent; font-size: 12px; font-weight: 600; color: #666; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .sub-tab2.active { background: #1e2030; border-color: #7eb8f7; color: #7eb8f7; }
+  .sub-tab2:hover:not(.active) { color: #aaa; border-color: #3a3d4e; }
+  .sub-panel2 { display: none; }
+  .sub-panel2.active { display: block; }
+  .tip-card { background: #1a1d27; border: 1px solid #2a2d3a; border-radius: 14px; padding: 1.25rem 1.5rem; margin-bottom: 1rem; }
+  .tip-disease { font-size: 14px; font-weight: 700; color: #3ecf8e; margin-bottom: 6px; }
+  .tip-hook { font-size: 15px; color: #fff; font-style: italic; margin-bottom: 10px; padding: 8px 12px; background: #13181f; border-radius: 8px; border-left: 3px solid #7eb8f7; }
+  .tip-body { font-size: 13px; color: #aaa; line-height: 1.7; }
+  .tip-body span { color: #e0e4f0; font-weight: 600; }
+  .fc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .fc-wrap { perspective: 800px; height: 210px; cursor: pointer; }
+  .fc-inner { position: relative; width: 100%; height: 100%; transform-style: preserve-3d; transition: transform 0.55s cubic-bezier(.4,0,.2,1); }
+  .fc-wrap.flipped .fc-inner { transform: rotateY(180deg); }
+  .fc-front, .fc-back { position: absolute; inset: 0; border-radius: 14px; backface-visibility: hidden; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 1.25rem; text-align: center; }
+  .fc-front { background: #1a1d27; border: 1px solid #2a2d3a; }
+  .fc-back { background: #13181f; border: 1px solid #3ecf8e44; transform: rotateY(180deg); align-items: flex-start; text-align: left; justify-content: flex-start; padding-top: 1rem; overflow: hidden; }
+  .fc-name { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 6px; }
+  .fc-alias { font-size: 11px; color: #555; }
+  .fc-tap { font-size: 11px; color: #444; margin-top: 18px; }
+  .fc-row { margin-bottom: 9px; font-size: 12px; line-height: 1.5; }
+  .fc-row:last-child { margin-bottom: 0; }
+  .fc-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; color: #3ecf8e; margin-bottom: 2px; }
+  .fc-val { color: #c8ccd8; }
+  .match-score-bar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; }
+  .match-score-txt { font-size: 13px; color: #888; }
+  .match-score-txt strong { color: #3ecf8e; }
+  .reset-btn { padding: 6px 14px; border-radius: 8px; border: 1px solid #3a3d4e; background: transparent; font-size: 12px; color: #888; cursor: pointer; font-family: inherit; transition: all 0.15s; }
+  .reset-btn:hover { background: #252836; color: #c8ccd8; }
+  .match-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .match-col-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: #555; margin-bottom: 6px; }
+  .match-col { display: flex; flex-direction: column; gap: 10px; }
+  .match-item { padding: 10px 14px; border-radius: 10px; border: 1px solid #2a2d3a; background: #1a1d27; font-size: 13px; color: #c8ccd8; cursor: pointer; transition: all 0.15s; line-height: 1.4; min-height: 54px; display: flex; align-items: center; }
+  .match-item:hover:not(.matched):not(.wrong-flash) { border-color: #4a4d60; background: #252836; color: #fff; }
+  .match-item.selected { border-color: #7eb8f7; background: #0d1e30; color: #7eb8f7; }
+  .match-item.matched { border-color: #3ecf8e55; background: #0e3024; color: #3ecf8e; cursor: default; pointer-events: none; }
+  .match-item.wrong-flash { border-color: #ff6b6b; background: #2d1414; color: #ff6b6b; }
+  .match-complete { text-align: center; padding: 1.5rem; background: #0e3024; border: 1px solid #3ecf8e55; border-radius: 14px; margin-top: 1rem; font-size: 15px; color: #3ecf8e; font-weight: 600; display: none; }
+  .match-complete.show { display: block; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Lab Final — Practice</h1>
+  <p class="subtitle">Physiology Lab &nbsp;·&nbsp; Chaffey College</p>
+
+  <div class="top-tabs">
+    <button class="top-tab active" onclick="switchTop('exam')">Practice Exam</button>
+    <button class="top-tab" onclick="switchTop('gi')">GI Diseases</button>
+    <button class="top-tab" onclick="switchTop('labs')">Other Labs</button>
+    <button class="top-tab" onclick="switchTop('blood')">Blood Typing</button>
+    <button class="top-tab" onclick="switchTop('tools')">Tools &amp; Methods</button>
+  </div>
+
+  <!-- PRACTICE EXAM -->
+  <div class="top-panel active" id="panel-exam">
+    <div class="score-bar">
+      <div class="score-circle" id="scoreCircle" style="--pct:0">
+        <div class="score-inner" id="scoreInner">0</div>
+      </div>
+      <div class="score-text">
+        <strong id="scoreLabel">0 / 9</strong>
+        interactive questions answered
+      </div>
+      <button class="reset-btn" style="margin-left:auto" onclick="resetExam()">Reset</button>
+    </div>
+
+    <div class="section-label">Short answer</div>
+    <div class="q-card" id="card-gi">
+      <div class="q-num">Question 1</div>
+      <div class="q-text">Name any <span class="key">4 gastrointestinal diseases</span> and describe the symptoms, affected area, and treatment for each.</div>
+      <button class="reveal-btn" onclick="toggleAnswer('gi', this)">Show answer</button>
+      <div class="answer-box" id="gi">
+        <div class="disease"><strong>GERD</strong> — Symptoms: heartburn, acid regurgitation, chest pain. Area: esophagus / LES. Treatment: PPIs, antacids, lifestyle changes.</div>
+        <div class="disease"><strong>IBS</strong> — Symptoms: cramping, bloating, alternating constipation/diarrhea (no structural damage). Area: large intestine (colon). Treatment: low-FODMAP diet, stress management.</div>
+        <div class="disease"><strong>Gallstones</strong> — Symptoms: sharp RUQ pain after fatty food, nausea. Area: gallbladder. Treatment: cholecystectomy.</div>
+        <div class="disease"><strong>Gastric Ulcers</strong> — Symptoms: burning stomach pain worse when empty, nausea. Area: stomach lining (mucosa). Treatment: PPIs + antibiotics (H. pylori); avoid NSAIDs.</div>
+      </div>
+    </div>
+
+    <div class="q-card" id="card-ecg">
+      <div class="q-num">Question 2</div>
+      <div class="q-text">How many <span class="key">leads</span> did you use to record your ECG?</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'ecg',true)">3 leads</button>
+        <button class="opt-btn" onclick="choose(this,'ecg',false)">6 leads</button>
+        <button class="opt-btn" onclick="choose(this,'ecg',false)">10 leads</button>
+        <button class="opt-btn" onclick="choose(this,'ecg',false)">12 leads</button>
+      </div>
+      <div class="feedback" id="ecg-fb">3 electrodes (RA, LA, LL) producing Lead II — the single tracing used for all your interval measurements.</div>
+    </div>
+
+    <div class="q-card" id="card-wbc">
+      <div class="q-num">Question 3</div>
+      <div class="q-text">Give <span class="key">2 reasons</span> why a physician would order a WBC differential count.</div>
+      <button class="reveal-btn" onclick="toggleAnswer('wbc', this)">Show answer</button>
+      <div class="answer-box" id="wbc">
+        <strong>1. Diagnose infection or inflammation</strong> — elevated neutrophils = bacterial; elevated lymphocytes = viral; elevated eosinophils = allergy/parasitic.<br><br>
+        <strong>2. Diagnose hematologic disorders</strong> — abnormal morphology or counts can indicate leukemia, lymphoma, anemia, or immunodeficiency.
+      </div>
+    </div>
+
+    <div class="q-card" id="card-ap">
+      <div class="q-num">Question 4</div>
+      <div class="q-text"><span class="key">Draw the action potential</span> and how sodium and potassium permeability changes. Label your axes.</div>
+      <button class="reveal-btn" onclick="toggleAP(this)">Show diagram</button>
+      <div class="ap-wrap" id="apWrap">
+        <svg viewBox="0 0 580 320" xmlns="http://www.w3.org/2000/svg">
+          <line x1="70" y1="20" x2="70" y2="265" stroke="#444" stroke-width="1.5"/>
+          <line x1="70" y1="265" x2="545" y2="265" stroke="#444" stroke-width="1.5"/>
+          <polygon points="70,15 66,26 74,26" fill="#444"/>
+          <polygon points="550,265 538,261 538,269" fill="#444"/>
+          <text x="20" y="148" font-size="11" fill="#888" text-anchor="middle" transform="rotate(-90,20,148)" font-family="Segoe UI,sans-serif">Membrane potential (mV)</text>
+          <text x="310" y="295" font-size="11" fill="#888" text-anchor="middle" font-family="Segoe UI,sans-serif">Time (ms)</text>
+          <line x1="65" y1="210" x2="545" y2="210" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="5,5"/>
+          <text x="60" y="214" font-size="10" fill="#666" text-anchor="end" font-family="Segoe UI,sans-serif">-55</text>
+          <line x1="65" y1="228" x2="545" y2="228" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="5,5"/>
+          <text x="60" y="232" font-size="10" fill="#666" text-anchor="end" font-family="Segoe UI,sans-serif">-70</text>
+          <line x1="65" y1="70" x2="545" y2="70" stroke="#2a2d3a" stroke-width="1" stroke-dasharray="5,5"/>
+          <text x="60" y="74" font-size="10" fill="#666" text-anchor="end" font-family="Segoe UI,sans-serif">+35</text>
+          <text x="60" y="258" font-size="10" fill="#666" text-anchor="end" font-family="Segoe UI,sans-serif">-90</text>
+          <polyline points="70,232 145,232 160,224 172,64 188,64 200,115 216,200 240,232 545,232" fill="none" stroke="#e8873a" stroke-width="2" stroke-dasharray="7,4" stroke-linejoin="round"/>
+          <polyline points="70,235 155,235 170,235 185,195 210,115 242,75 275,115 315,225 360,235 545,235" fill="none" stroke="#3ecf8e" stroke-width="2" stroke-dasharray="4,4" stroke-linejoin="round"/>
+          <polyline points="70,228 145,228 158,210 168,68 205,68 245,255 285,228 370,228 545,228" fill="none" stroke="#7eb8f7" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/>
+          <circle cx="158" cy="210" r="4" fill="#7eb8f7"/>
+          <text x="163" y="206" font-size="10" fill="#7eb8f7" font-family="Segoe UI,sans-serif">Threshold (-55 mV)</text>
+          <circle cx="205" cy="68" r="4" fill="#7eb8f7"/>
+          <text x="210" y="65" font-size="10" fill="#7eb8f7" font-family="Segoe UI,sans-serif">Peak (+35 mV)</text>
+          <circle cx="245" cy="255" r="4" fill="#7eb8f7"/>
+          <text x="210" y="272" font-size="10" fill="#7eb8f7" font-family="Segoe UI,sans-serif">Hyperpolarization (-90 mV)</text>
+          <circle cx="285" cy="228" r="4" fill="#7eb8f7"/>
+          <text x="290" y="238" font-size="10" fill="#aaa" font-family="Segoe UI,sans-serif">Resting (-70 mV)</text>
+          <rect x="370" y="32" width="168" height="70" rx="8" fill="#13181f" stroke="#2a2d3a" stroke-width="1"/>
+          <line x1="382" y1="50" x2="408" y2="50" stroke="#7eb8f7" stroke-width="3"/>
+          <text x="414" y="54" font-size="11" fill="#d0d4e0" font-family="Segoe UI,sans-serif">Action potential</text>
+          <line x1="382" y1="67" x2="408" y2="67" stroke="#e8873a" stroke-width="2" stroke-dasharray="7,4"/>
+          <text x="414" y="71" font-size="11" fill="#d0d4e0" font-family="Segoe UI,sans-serif">Na+ permeability</text>
+          <line x1="382" y1="84" x2="408" y2="84" stroke="#3ecf8e" stroke-width="2" stroke-dasharray="4,4"/>
+          <text x="414" y="88" font-size="11" fill="#d0d4e0" font-family="Segoe UI,sans-serif">K+ permeability</text>
+        </svg>
+        <div style="font-size:12px;color:#888;margin-top:6px;line-height:1.6;padding:0 4px;">Na+ channels open first = rapid depolarization. Na+ inactivates + K+ opens = repolarization and hyperpolarization overshoot. K+ channels close slowly = return to resting.</div>
+      </div>
+    </div>
+
+    <div class="section-label">True or false</div>
+    <div class="q-card" id="card-epi">
+      <div class="q-num">True or False</div>
+      <div class="q-text">It is <span class="key">abnormal</span> to find epithelial cells in urine.</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'epi',false)">True</button>
+        <button class="opt-btn" onclick="choose(this,'epi',true)">False</button>
+      </div>
+      <div class="feedback" id="epi-fb">False — small numbers of epithelial cells are normal; they shed naturally from the urinary tract lining.</div>
+    </div>
+    <div class="q-card" id="card-refract">
+      <div class="q-num">True or False</div>
+      <div class="q-text">A <span class="key">refractometer</span> measures specific gravity.</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'refract',true)">True</button>
+        <button class="opt-btn" onclick="choose(this,'refract',false)">False</button>
+      </div>
+      <div class="feedback" id="refract-fb">True — it measures how light bends through a solution, which correlates directly to specific gravity.</div>
+    </div>
+    <div class="q-card" id="card-neurosim">
+      <div class="q-num">True or False</div>
+      <div class="q-text"><span class="key">Neurosim</span> is a computer program.</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'neurosim',true)">True</button>
+        <button class="opt-btn" onclick="choose(this,'neurosim',false)">False</button>
+      </div>
+      <div class="feedback" id="neurosim-fb">True — Neurosim is a simulation software used to model nerve and muscle electrophysiology in lab.</div>
+    </div>
+
+    <div class="section-label">Fill in the blank</div>
+    <div class="q-card" id="card-iv">
+      <div class="q-num">Blank 1</div>
+      <div class="q-text">The <span class="key">independent variable</span> is plotted on the ________ axis.</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'iv',true)">X (horizontal)</button>
+        <button class="opt-btn" onclick="choose(this,'iv',false)">Y (vertical)</button>
+        <button class="opt-btn" onclick="choose(this,'iv',false)">Z (depth)</button>
+      </div>
+      <div class="feedback" id="iv-fb">X-axis — the independent variable is what you control or manipulate.</div>
+    </div>
+    <div class="q-card" id="card-dv">
+      <div class="q-num">Blank 2</div>
+      <div class="q-text">The <span class="key">dependent variable</span> is plotted on the ________ axis.</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'dv',false)">X (horizontal)</button>
+        <button class="opt-btn" onclick="choose(this,'dv',true)">Y (vertical)</button>
+        <button class="opt-btn" onclick="choose(this,'dv',false)">Z (depth)</button>
+      </div>
+      <div class="feedback" id="dv-fb">Y-axis — the dependent variable is what you measure as a result.</div>
+    </div>
+
+    <div class="section-label">Blood typing</div>
+    <div class="q-card" id="card-bt">
+      <div class="q-num">Blood Typing Table — Judy</div>
+      <div class="q-text">Anti-A clumping: <strong style="color:#3ecf8e">Yes</strong> &nbsp;|&nbsp; Anti-B clumping: <strong style="color:#ff6b6b">No</strong> &nbsp;|&nbsp; Anti-Rh clumping: <strong style="color:#3ecf8e">Yes</strong><br><br>What is Judy's blood type?</div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'bt',false)">A-</button>
+        <button class="opt-btn" onclick="choose(this,'bt',true)">A+</button>
+        <button class="opt-btn" onclick="choose(this,'bt',false)">B+</button>
+        <button class="opt-btn" onclick="choose(this,'bt',false)">AB+</button>
+        <button class="opt-btn" onclick="choose(this,'bt',false)">O+</button>
+      </div>
+      <div class="feedback" id="bt-fb">A+ — Anti-A clumps = A antigen present. Anti-B doesn't clump = no B antigen. Anti-Rh clumps = Rh positive.</div>
+    </div>
+
+    <div class="section-label">Cell identification — stations 1-4</div>
+    <p style="font-size:13px;color:#666;margin-bottom:1rem;">Identify each WBC by nucleus shape, granules, and cytoplasm amount.</p>
+
+    <div class="q-card" id="card-s1">
+      <div class="q-num">Station 1</div>
+      <div class="cell-stage">
+        <svg viewBox="0 0 140 140" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="70" cy="70" r="62" fill="#2a1818" stroke="#5a3030" stroke-width="1.5"/>
+          <ellipse cx="52" cy="65" rx="14" ry="16" fill="#7a5aa0" stroke="#9a7ac0" stroke-width="1"/>
+          <ellipse cx="70" cy="55" rx="13" ry="15" fill="#7a5aa0" stroke="#9a7ac0" stroke-width="1"/>
+          <ellipse cx="88" cy="66" rx="13" ry="15" fill="#7a5aa0" stroke="#9a7ac0" stroke-width="1"/>
+          <line x1="64" y1="62" x2="69" y2="58" stroke="#9a7ac0" stroke-width="1.5"/>
+          <line x1="79" y1="58" x2="84" y2="63" stroke="#9a7ac0" stroke-width="1.5"/>
+          <circle cx="38" cy="52" r="2" fill="#c8a0c0" opacity="0.5"/>
+          <circle cx="42" cy="84" r="2" fill="#c8a0c0" opacity="0.5"/>
+          <circle cx="98" cy="50" r="2" fill="#c8a0c0" opacity="0.5"/>
+          <circle cx="100" cy="80" r="2" fill="#c8a0c0" opacity="0.5"/>
+          <circle cx="60" cy="92" r="2" fill="#c8a0c0" opacity="0.5"/>
+          <circle cx="80" cy="92" r="2" fill="#c8a0c0" opacity="0.5"/>
+        </svg>
+      </div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'s1',true)">Neutrophil</button>
+        <button class="opt-btn" onclick="choose(this,'s1',false)">Eosinophil</button>
+        <button class="opt-btn" onclick="choose(this,'s1',false)">Lymphocyte</button>
+        <button class="opt-btn" onclick="choose(this,'s1',false)">Monocyte</button>
+      </div>
+      <div class="feedback" id="s1-fb">Neutrophil — multi-lobed nucleus connected by thin strands, fine lilac granules. Most common WBC.</div>
+      <p class="hint">Hint: count the nuclear lobes</p>
+    </div>
+
+    <div class="q-card" id="card-s2">
+      <div class="q-num">Station 2</div>
+      <div class="cell-stage">
+        <svg viewBox="0 0 140 140" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="70" cy="70" r="62" fill="#2a1818" stroke="#5a3030" stroke-width="1.5"/>
+          <ellipse cx="54" cy="70" rx="15" ry="17" fill="#6a4a90" stroke="#8a6ab0" stroke-width="1"/>
+          <ellipse cx="82" cy="70" rx="15" ry="17" fill="#6a4a90" stroke="#8a6ab0" stroke-width="1"/>
+          <circle cx="36" cy="56" r="5" fill="#c84020" opacity="0.9"/>
+          <circle cx="36" cy="72" r="5" fill="#d04828" opacity="0.9"/>
+          <circle cx="38" cy="88" r="4.5" fill="#c84020" opacity="0.9"/>
+          <circle cx="102" cy="54" r="5" fill="#c84020" opacity="0.9"/>
+          <circle cx="103" cy="70" r="5" fill="#d04828" opacity="0.9"/>
+          <circle cx="101" cy="86" r="4.5" fill="#c84020" opacity="0.9"/>
+          <circle cx="60" cy="98" r="4.5" fill="#c84020" opacity="0.9"/>
+          <circle cx="78" cy="98" r="4.5" fill="#d04828" opacity="0.9"/>
+        </svg>
+      </div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'s2',false)">Neutrophil</button>
+        <button class="opt-btn" onclick="choose(this,'s2',true)">Eosinophil</button>
+        <button class="opt-btn" onclick="choose(this,'s2',false)">Basophil</button>
+        <button class="opt-btn" onclick="choose(this,'s2',false)">Monocyte</button>
+      </div>
+      <div class="feedback" id="s2-fb">Eosinophil — bilobed nucleus + large red-orange granules. Associated with allergies and parasites.</div>
+      <p class="hint">Hint: granule color is the biggest clue</p>
+    </div>
+
+    <div class="q-card" id="card-s3">
+      <div class="q-num">Station 3</div>
+      <div class="cell-stage">
+        <svg viewBox="0 0 140 140" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="70" cy="70" r="52" fill="#181a2a" stroke="#303560" stroke-width="1.5"/>
+          <circle cx="70" cy="70" r="43" fill="#3a5aaf" stroke="#5a7acf" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'s3',false)">Neutrophil</button>
+        <button class="opt-btn" onclick="choose(this,'s3',false)">Eosinophil</button>
+        <button class="opt-btn" onclick="choose(this,'s3',true)">Lymphocyte</button>
+        <button class="opt-btn" onclick="choose(this,'s3',false)">Monocyte</button>
+      </div>
+      <div class="feedback" id="s3-fb">Lymphocyte — large round nucleus fills nearly the whole cell. Smallest WBC. T and B cells.</div>
+      <p class="hint">Hint: nucleus-to-cytoplasm ratio</p>
+    </div>
+
+    <div class="q-card" id="card-s4">
+      <div class="q-num">Station 4</div>
+      <div class="cell-stage">
+        <svg viewBox="0 0 140 140" width="140" height="140" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="70" cy="72" r="60" fill="#181a2a" stroke="#303560" stroke-width="1.5"/>
+          <path d="M 44 62 Q 50 38 70 44 Q 92 38 94 62 Q 97 80 78 77 Q 70 83 62 77 Q 43 80 44 62 Z" fill="#5a7aaf" stroke="#7a9acf" stroke-width="1.2"/>
+          <path d="M 62 77 Q 58 92 66 95 Q 74 97 78 77" fill="#5a7aaf" stroke="#7a9acf" stroke-width="0.8"/>
+        </svg>
+      </div>
+      <div class="btn-row">
+        <button class="opt-btn" onclick="choose(this,'s4',false)">Neutrophil</button>
+        <button class="opt-btn" onclick="choose(this,'s4',false)">Basophil</button>
+        <button class="opt-btn" onclick="choose(this,'s4',false)">Lymphocyte</button>
+        <button class="opt-btn" onclick="choose(this,'s4',true)">Monocyte</button>
+      </div>
+      <div class="feedback" id="s4-fb">Monocyte — kidney/horseshoe nucleus, largest WBC, abundant gray-blue cytoplasm. Becomes a macrophage in tissue.</div>
+      <p class="hint">Hint: nucleus shape + cell size</p>
+    </div>
+  </div>
+
+  <!-- GI STUDY -->
+  <div class="top-panel" id="panel-gi">
+    <div class="sub-tabs">
+      <button class="sub-tab active" onclick="switchSub('tips')">Memory Tips</button>
+      <button class="sub-tab" onclick="switchSub('flash')">Flashcards</button>
+      <button class="sub-tab" onclick="switchSub('msym')">Match: Symptoms</button>
+      <button class="sub-tab" onclick="switchSub('marea')">Match: Area</button>
+      <button class="sub-tab" onclick="switchSub('mtreat')">Match: Treatment</button>
+    </div>
+
+    <!-- TIPS -->
+    <div class="sub-panel active" id="sub-tips">
+      <div class="tip-card">
+        <div class="tip-disease">GERD</div>
+        <div class="tip-hook">"The fire that goes UP."</div>
+        <div class="tip-body">Acid normally stays in the stomach — in GERD it <span>refluxes upward</span> into the esophagus because the lower esophageal sphincter (LES) fails. Think of it as a chimney in reverse. Heartburn after lying down or eating spicy food is the classic story.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-disease">IBS — Irritable Bowel Syndrome</div>
+        <div class="tip-hook">"Irritable but intact — no damage, just drama."</div>
+        <div class="tip-body">The most important thing to remember: <span>IBS causes zero structural damage.</span> The colon looks completely normal — it just overreacts. Stress is a huge trigger. The alternating constipation and diarrhea is the hallmark. <span>Functional disorder, not inflammatory.</span></div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-disease">Gallstones</div>
+        <div class="tip-hook">"Fat triggers the stone."</div>
+        <div class="tip-body">Gallstones are usually <span>hardened cholesterol crystals</span> in the gallbladder. When you eat fatty food the gallbladder contracts to push bile out — if a stone blocks the duct, <span>sharp RUQ pain</span> hits. Treatment is just removing the whole gallbladder (cholecystectomy). You don't need it to survive.</div>
+      </div>
+      <div class="tip-card">
+        <div class="tip-disease">Gastric Ulcers</div>
+        <div class="tip-hook">"Empty stomach = burning."</div>
+        <div class="tip-body">Ulcers are <span>sores in the stomach lining</span> — caused by H. pylori bacteria eating through the protective mucus layer, or by overusing NSAIDs (ibuprofen, aspirin). Pain is <span>worst when the stomach is empty</span> — no food to buffer the acid. PPIs lower the acid; antibiotics kill H. pylori.</div>
+      </div>
+    </div>
+
+    <!-- FLASHCARDS -->
+    <div class="sub-panel" id="sub-flash">
+      <p style="font-size:13px;color:#666;margin-bottom:1.25rem;">Click any card to flip it and see the full breakdown.</p>
+      <div class="fc-grid">
+        <div class="fc-wrap" onclick="this.classList.toggle('flipped')">
+          <div class="fc-inner">
+            <div class="fc-front"><div class="fc-name">GERD</div><div class="fc-alias">Gastroesophageal Reflux Disease</div><div class="fc-tap">tap to flip</div></div>
+            <div class="fc-back">
+              <div class="fc-row"><div class="fc-lbl">Symptoms</div><div class="fc-val">Heartburn, acid regurgitation, chest pain</div></div>
+              <div class="fc-row"><div class="fc-lbl">Affected area</div><div class="fc-val">Esophagus / lower esophageal sphincter (LES)</div></div>
+              <div class="fc-row"><div class="fc-lbl">Treatment</div><div class="fc-val">PPIs (omeprazole), antacids, lifestyle changes</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-wrap" onclick="this.classList.toggle('flipped')">
+          <div class="fc-inner">
+            <div class="fc-front"><div class="fc-name">IBS</div><div class="fc-alias">Irritable Bowel Syndrome</div><div class="fc-tap">tap to flip</div></div>
+            <div class="fc-back">
+              <div class="fc-row"><div class="fc-lbl">Symptoms</div><div class="fc-val">Cramping, bloating, alternating constipation/diarrhea — no structural damage</div></div>
+              <div class="fc-row"><div class="fc-lbl">Affected area</div><div class="fc-val">Large intestine (colon)</div></div>
+              <div class="fc-row"><div class="fc-lbl">Treatment</div><div class="fc-val">Low-FODMAP diet, stress management, antispasmodics</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-wrap" onclick="this.classList.toggle('flipped')">
+          <div class="fc-inner">
+            <div class="fc-front"><div class="fc-name">Gallstones</div><div class="fc-alias">Cholelithiasis</div><div class="fc-tap">tap to flip</div></div>
+            <div class="fc-back">
+              <div class="fc-row"><div class="fc-lbl">Symptoms</div><div class="fc-val">Sharp RUQ pain after fatty food, nausea</div></div>
+              <div class="fc-row"><div class="fc-lbl">Affected area</div><div class="fc-val">Gallbladder</div></div>
+              <div class="fc-row"><div class="fc-lbl">Treatment</div><div class="fc-val">Cholecystectomy (surgical gallbladder removal)</div></div>
+            </div>
+          </div>
+        </div>
+        <div class="fc-wrap" onclick="this.classList.toggle('flipped')">
+          <div class="fc-inner">
+            <div class="fc-front"><div class="fc-name">Gastric Ulcers</div><div class="fc-alias">Peptic Ulcer Disease</div><div class="fc-tap">tap to flip</div></div>
+            <div class="fc-back">
+              <div class="fc-row"><div class="fc-lbl">Symptoms</div><div class="fc-val">Burning stomach pain worse when empty, nausea</div></div>
+              <div class="fc-row"><div class="fc-lbl">Affected area</div><div class="fc-val">Stomach lining (mucosa)</div></div>
+              <div class="fc-row"><div class="fc-lbl">Treatment</div><div class="fc-val">PPIs + antibiotics (H. pylori); avoid NSAIDs</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATCH SYMPTOMS -->
+    <div class="sub-panel" id="sub-msym">
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="msym-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatch('msym')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Disease</div><div class="match-col-lbl">Symptom</div>
+      </div>
+      <div class="match-cols" id="msym-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="msym-complete">All matched! You nailed it.</div>
+    </div>
+
+    <!-- MATCH AREA -->
+    <div class="sub-panel" id="sub-marea">
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="marea-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatch('marea')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Disease</div><div class="match-col-lbl">Affected area</div>
+      </div>
+      <div class="match-cols" id="marea-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="marea-complete">All matched! You nailed it.</div>
+    </div>
+
+    <!-- MATCH TREATMENT -->
+    <div class="sub-panel" id="sub-mtreat">
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mtreat-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatch('mtreat')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Disease</div><div class="match-col-lbl">Treatment</div>
+      </div>
+      <div class="match-cols" id="mtreat-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mtreat-complete">All matched! You nailed it.</div>
+    </div>
+  </div>
+
+  <!-- OTHER LABS -->
+  <div class="top-panel" id="panel-labs">
+    <div class="sub-tabs">
+      <button class="sub-tab2 active" onclick="switchSub2('macro')">Macromolecules</button>
+      <button class="sub-tab2" onclick="switchSub2('osmo')">Osmolarity</button>
+      <button class="sub-tab2" onclick="switchSub2('reflex')">Reflexes</button>
+      <button class="sub-tab2" onclick="switchSub2('urine')">Urinalysis</button>
+      <button class="sub-tab2" onclick="switchSub2('emg')">EMG</button>
+      <button class="sub-tab2" onclick="switchSub2('thyroid')">Thyroid</button>
+      <button class="sub-tab2" onclick="switchSub2('dna')">DNA / Protein Synthesis</button>
+      <button class="sub-tab2" onclick="switchSub2('wbclab')">WBC Lab</button>
+      <button class="sub-tab2" onclick="switchSub2('neurosim')">NeuroSim</button>
+      <button class="sub-tab2" onclick="switchSub2('bp')">Blood Pressure</button>
+    </div>
+
+    <!-- MACROMOLECULES -->
+    <div class="sub-panel2 active" id="sub2-macro">
+      <div class="section-label" style="margin-top:0">Macromolecules — Multiple Choice</div>
+      <div class="q-card" id="card-m1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">Which reagent is used to test for <span class="key">simple sugars</span> (monosaccharides and disaccharides)?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'m1',false)">Iodine</button>
+          <button class="opt-btn" onclick="choose(this,'m1',true)">Benedict's reagent</button>
+          <button class="opt-btn" onclick="choose(this,'m1',false)">Biuret reagent</button>
+          <button class="opt-btn" onclick="choose(this,'m1',false)">Paper test</button>
+        </div>
+        <div class="feedback" id="m1-fb">Benedict's reagent — when heated with a simple sugar it turns yellow, orange, or red. Clear = negative.</div>
+      </div>
+      <div class="q-card" id="card-m2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">A <span class="key">positive Benedict's test</span> produces what color?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'m2',false)">Dark blue</button>
+          <button class="opt-btn" onclick="choose(this,'m2',false)">Lavender/violet</button>
+          <button class="opt-btn" onclick="choose(this,'m2',true)">Yellow, orange, or red</button>
+          <button class="opt-btn" onclick="choose(this,'m2',false)">Stays clear</button>
+        </div>
+        <div class="feedback" id="m2-fb">Yellow, orange, or red — deeper color = more sugar present. Clear = negative (no simple sugars).</div>
+      </div>
+      <div class="q-card" id="card-m3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">Which reagent tests for <span class="key">starch</span>, and what color = positive?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'m3',false)">Benedict's / red</button>
+          <button class="opt-btn" onclick="choose(this,'m3',true)">Iodine / dark blue</button>
+          <button class="opt-btn" onclick="choose(this,'m3',false)">Biuret / lavender</button>
+          <button class="opt-btn" onclick="choose(this,'m3',false)">Paper test / translucent</button>
+        </div>
+        <div class="feedback" id="m3-fb">Iodine — turns dark blue/black in the presence of starch. Stays yellowish-brown if no starch.</div>
+      </div>
+      <div class="q-card" id="card-m4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">The <span class="key">Biuret reagent</span> tests for what, and what color = positive?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'m4',false)">Lipids / translucent spot</button>
+          <button class="opt-btn" onclick="choose(this,'m4',false)">Starch / dark blue</button>
+          <button class="opt-btn" onclick="choose(this,'m4',true)">Protein / lavender or violet</button>
+          <button class="opt-btn" onclick="choose(this,'m4',false)">Simple sugars / orange</button>
+        </div>
+        <div class="feedback" id="m4-fb">Protein — Biuret is blue and turns lavender/violet when it reacts with protein. Egg albumin was the positive control.</div>
+      </div>
+      <div class="q-card" id="card-m5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">Which test detects <span class="key">lipids</span> in food?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'m5',false)">Benedict's test</button>
+          <button class="opt-btn" onclick="choose(this,'m5',false)">Iodine test</button>
+          <button class="opt-btn" onclick="choose(this,'m5',false)">Biuret test</button>
+          <button class="opt-btn" onclick="choose(this,'m5',true)">Paper test</button>
+        </div>
+        <div class="feedback" id="m5-fb">Paper test — rub food on brown paper, let dry, hold to light. Translucent greasy spot = lipids present. Water evaporates clean.</div>
+      </div>
+      <div class="q-card" id="card-m6">
+        <div class="q-num">Question 6</div>
+        <div class="q-text">Starch is a <span class="key">polysaccharide</span>. What does that mean?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'m6',false)">A single sugar molecule</button>
+          <button class="opt-btn" onclick="choose(this,'m6',false)">Two sugar molecules bonded together</button>
+          <button class="opt-btn" onclick="choose(this,'m6',true)">Three or more sugar molecules bonded together</button>
+          <button class="opt-btn" onclick="choose(this,'m6',false)">A fat molecule with sugar attached</button>
+        </div>
+        <div class="feedback" id="m6-fb">Three or more — mono = 1, di = 2, poly = many. Starch is many glucose subunits bonded together (how plants store energy).</div>
+      </div>
+
+      <div class="section-label">Quick Match — Lab Tests</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmtest-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmtest')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Test</div><div class="match-col-lbl">What it detects / positive result</div>
+      </div>
+      <div class="match-cols" id="mmtest-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmtest-complete">All matched! You know your tests.</div>
+
+      <div class="section-label">Quick Match — Sugar Types</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmsugar-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmsugar')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Term</div><div class="match-col-lbl">Definition / example</div>
+      </div>
+      <div class="match-cols" id="mmsugar-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmsugar-complete">All matched! You know your carbs.</div>
+    </div>
+
+    <!-- OSMOLARITY -->
+    <div class="sub-panel2" id="sub2-osmo">
+      <div class="section-label" style="margin-top:0">Osmolarity &amp; Tonicity — Multiple Choice</div>
+      <div class="q-card" id="card-o1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">What happens to RBCs in a <span class="key">hypertonic</span> solution?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'o1',false)">They swell and burst</button>
+          <button class="opt-btn" onclick="choose(this,'o1',true)">They shrink (crenate)</button>
+          <button class="opt-btn" onclick="choose(this,'o1',false)">They stay the same</button>
+          <button class="opt-btn" onclick="choose(this,'o1',false)">They divide</button>
+        </div>
+        <div class="feedback" id="o1-fb">They crenate — hypertonic = more solutes outside, so water exits the cell by osmosis causing it to shrivel.</div>
+      </div>
+      <div class="q-card" id="card-o2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">What happens to RBCs in a <span class="key">hypotonic</span> solution?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'o2',false)">They crenate</button>
+          <button class="opt-btn" onclick="choose(this,'o2',false)">They stay normal</button>
+          <button class="opt-btn" onclick="choose(this,'o2',true)">They lyse (burst)</button>
+          <button class="opt-btn" onclick="choose(this,'o2',false)">They release starch</button>
+        </div>
+        <div class="feedback" id="o2-fb">They lyse — hypotonic = fewer solutes outside, so water rushes INTO the cell, the membrane ruptures and releases hemoglobin.</div>
+      </div>
+      <div class="q-card" id="card-o3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">Why don't we give dehydrated patients <span class="key">distilled water</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'o3',false)">It's too expensive</button>
+          <button class="opt-btn" onclick="choose(this,'o3',false)">It would cause cells to crenate</button>
+          <button class="opt-btn" onclick="choose(this,'o3',true)">It's hypotonic — cells would absorb water and burst</button>
+          <button class="opt-btn" onclick="choose(this,'o3',false)">It has no oxygen</button>
+        </div>
+        <div class="feedback" id="o3-fb">DI water is hypotonic (no solutes). Cells would take in water rapidly and lyse. Normal saline (0.9% NaCl) is used because it's isotonic to blood.</div>
+      </div>
+      <div class="q-card" id="card-o4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">In an <span class="key">isotonic</span> solution, what happens to RBCs?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'o4',false)">They shrink</button>
+          <button class="opt-btn" onclick="choose(this,'o4',false)">They burst</button>
+          <button class="opt-btn" onclick="choose(this,'o4',true)">They maintain normal shape and size</button>
+          <button class="opt-btn" onclick="choose(this,'o4',false)">They release hemoglobin</button>
+        </div>
+        <div class="feedback" id="o4-fb">Normal shape and size — isotonic = equal solute concentration inside and outside, so no net water movement occurs.</div>
+      </div>
+      <div class="q-card" id="card-o5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">Which ion contributes approximately <span class="key">50%</span> of total osmolarity of human body fluids?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'o5',false)">Potassium (K+)</button>
+          <button class="opt-btn" onclick="choose(this,'o5',true)">Sodium (Na+)</button>
+          <button class="opt-btn" onclick="choose(this,'o5',false)">Chloride (Cl-)</button>
+          <button class="opt-btn" onclick="choose(this,'o5',false)">Bicarbonate (HCO3-)</button>
+        </div>
+        <div class="feedback" id="o5-fb">Sodium — contributes ~50% of total osmolarity on its own. Na+, Cl-, and HCO3- together account for about 90%.</div>
+      </div>
+    </div>
+
+    <!-- REFLEXES -->
+    <div class="sub-panel2" id="sub2-reflex">
+      <div class="section-label" style="margin-top:0">Neuromuscular Reflexes — Multiple Choice</div>
+      <div class="q-card" id="card-r1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">Which is <span class="key">NOT</span> a component of a reflex arc?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r1',false)">Receptor</button>
+          <button class="opt-btn" onclick="choose(this,'r1',false)">Sensory (afferent) neuron</button>
+          <button class="opt-btn" onclick="choose(this,'r1',true)">Brain</button>
+          <button class="opt-btn" onclick="choose(this,'r1',false)">Effector</button>
+        </div>
+        <div class="feedback" id="r1-fb">The brain — simple reflexes bypass the brain entirely. The arc goes: receptor → sensory neuron → interneuron (spinal cord) → motor neuron → effector. Brain is informed after the fact.</div>
+      </div>
+      <div class="q-card" id="card-r2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">Complete the reflex arc order:<br><span class="key">Receptor → ? → Interneuron → ? → Effector</span></div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r2',false)">Motor neuron → Sensory neuron</button>
+          <button class="opt-btn" onclick="choose(this,'r2',true)">Sensory neuron → Motor neuron</button>
+          <button class="opt-btn" onclick="choose(this,'r2',false)">Brain → Spinal cord</button>
+          <button class="opt-btn" onclick="choose(this,'r2',false)">Interneuron → Sensory neuron</button>
+        </div>
+        <div class="feedback" id="r2-fb">Sensory (afferent) carries signal IN to the spinal cord. Motor (efferent) carries signal OUT to the muscle/effector.</div>
+      </div>
+      <div class="q-card" id="card-r3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">A reflex grade of <span class="key">4+</span> indicates what?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r3',false)">Normal brisk response</button>
+          <button class="opt-btn" onclick="choose(this,'r3',false)">Slight but present — may be normal</button>
+          <button class="opt-btn" onclick="choose(this,'r3',false)">No response — always abnormal</button>
+          <button class="opt-btn" onclick="choose(this,'r3',true)">Repeating reflex (clonus) — always abnormal</button>
+        </div>
+        <div class="feedback" id="r3-fb">4+ = clonus — always abnormal. Grade 0 is also always abnormal. Grade 2+ is normal. 1+ and 3+ may or may not be normal.</div>
+      </div>
+      <div class="q-card" id="card-r4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">In normal <span class="key">adults</span>, what is the expected Babinski response?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r4',false)">Big toe dorsiflexes and toes fan out</button>
+          <button class="opt-btn" onclick="choose(this,'r4',true)">Toes flex downward</button>
+          <button class="opt-btn" onclick="choose(this,'r4',false)">No response at all</button>
+          <button class="opt-btn" onclick="choose(this,'r4',false)">Leg kicks forward</button>
+        </div>
+        <div class="feedback" id="r4-fb">Toes flex downward — normal in adults. Fanning/dorsiflexion (Babinski's sign) is normal in infants (unmyelinated nerves) but abnormal in adults.</div>
+      </div>
+      <div class="q-card" id="card-r5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">Which reflex grade is considered <span class="key">normal</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r5',false)">0</button>
+          <button class="opt-btn" onclick="choose(this,'r5',false)">1+</button>
+          <button class="opt-btn" onclick="choose(this,'r5',true)">2+</button>
+          <button class="opt-btn" onclick="choose(this,'r5',false)">4+</button>
+        </div>
+        <div class="feedback" id="r5-fb">2+ is the normal brisk response. 0 is always abnormal. 4+ is always abnormal. 1+ and 3+ depend on patient history.</div>
+      </div>
+
+      <div class="section-label">Identify the Reflex</div>
+
+      <div class="q-card" id="card-r6">
+        <div class="q-num">Question 6</div>
+        <div class="q-text">Tapping just below the kneecap causes the leg to kick forward. What reflex is this?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r6',false)">Achilles reflex</button>
+          <button class="opt-btn" onclick="choose(this,'r6',true)">Patellar reflex</button>
+          <button class="opt-btn" onclick="choose(this,'r6',false)">Bicep reflex</button>
+          <button class="opt-btn" onclick="choose(this,'r6',false)">Plantar reflex</button>
+        </div>
+        <div class="feedback" id="r6-fb">Patellar reflex — tapping the patellar tendon stretches the quadriceps, triggering a contraction and leg extension. Tests spinal cord levels L3–L4.</div>
+      </div>
+
+      <div class="q-card" id="card-r7">
+        <div class="q-num">Question 7</div>
+        <div class="q-text">Tapping the Achilles tendon causes the foot to plantarflex. What reflex is this and what spinal levels does it test?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r7',false)">Patellar reflex — L3-L4</button>
+          <button class="opt-btn" onclick="choose(this,'r7',false)">Tricep reflex — C6-C7</button>
+          <button class="opt-btn" onclick="choose(this,'r7',true)">Achilles reflex — S1-S2</button>
+          <button class="opt-btn" onclick="choose(this,'r7',false)">Plantar reflex — L4-L5</button>
+        </div>
+        <div class="feedback" id="r7-fb">Achilles reflex — tapping the Achilles tendon triggers the gastrocnemius (calf) to contract, causing plantarflexion (foot points down). Tests S1–S2 of the sacral spinal cord.</div>
+      </div>
+
+      <div class="q-card" id="card-r8">
+        <div class="q-num">Question 8</div>
+        <div class="q-text">Tapping the bicep tendon at the elbow causes the forearm to flex. What spinal levels does this test?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r8',false)">L3-L4</button>
+          <button class="opt-btn" onclick="choose(this,'r8',false)">S1-S2</button>
+          <button class="opt-btn" onclick="choose(this,'r8',true)">C5-C6</button>
+          <button class="opt-btn" onclick="choose(this,'r8',false)">C8-T1</button>
+        </div>
+        <div class="feedback" id="r8-fb">Bicep reflex tests C5–C6. The bicep contracts and the forearm flexes. Loss of this reflex can indicate damage to the cervical spinal cord at that level.</div>
+      </div>
+
+      <div class="q-card" id="card-r9">
+        <div class="q-num">Question 9</div>
+        <div class="q-text">Tapping the tricep tendon above the elbow causes forearm extension. What spinal levels does the tricep reflex test?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r9',false)">C4-C5</button>
+          <button class="opt-btn" onclick="choose(this,'r9',true)">C6-C7</button>
+          <button class="opt-btn" onclick="choose(this,'r9',false)">T1-T2</button>
+          <button class="opt-btn" onclick="choose(this,'r9',false)">L1-L2</button>
+        </div>
+        <div class="feedback" id="r9-fb">Tricep reflex tests C6–C7. The tricep contracts and the forearm extends. This is the opposite movement from the bicep reflex.</div>
+      </div>
+
+      <div class="q-card" id="card-r10">
+        <div class="q-num">Question 10</div>
+        <div class="q-text">The <span class="key">brachioradialis reflex</span> is triggered by tapping where?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'r10',false)">The back of the upper arm</button>
+          <button class="opt-btn" onclick="choose(this,'r10',false)">The inside of the elbow</button>
+          <button class="opt-btn" onclick="choose(this,'r10',true)">The forearm / wrist area near the radius</button>
+          <button class="opt-btn" onclick="choose(this,'r10',false)">The palm of the hand</button>
+        </div>
+        <div class="feedback" id="r10-fb">Brachioradialis reflex — tapping the brachioradialis tendon near the wrist/lower forearm causes forearm flexion. Tests C5–C6, similar to the bicep reflex.</div>
+      </div>
+
+      <div class="section-label">Quick Match — Reflex to Location</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmreflex-score">0</strong> / 5</div>
+        <button class="reset-btn" onclick="buildMatchG('mmreflex')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Reflex</div><div class="match-col-lbl">Where you tap / what happens</div>
+      </div>
+      <div class="match-cols" id="mmreflex-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmreflex-complete">All matched! You know your reflexes.</div>
+    </div>
+
+    <!-- URINALYSIS -->
+    <div class="sub-panel2" id="sub2-urine">
+      <div class="section-label" style="margin-top:0">Urinalysis — Multiple Choice</div>
+      <div class="q-card" id="card-u1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">What might <span class="key">glucose</span> in urine indicate?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'u1',false)">Liver disease</button>
+          <button class="opt-btn" onclick="choose(this,'u1',true)">Diabetes</button>
+          <button class="opt-btn" onclick="choose(this,'u1',false)">Kidney infection</button>
+          <button class="opt-btn" onclick="choose(this,'u1',false)">Dehydration</button>
+        </div>
+        <div class="feedback" id="u1-fb">Diabetes — blood glucose exceeds the kidney's reabsorption threshold so it spills into urine. Normally zero glucose should appear in urine.</div>
+      </div>
+      <div class="q-card" id="card-u2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">Why is <span class="key">first morning urine</span> ideal for urinalysis?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'u2',false)">Easier to collect</button>
+          <button class="opt-btn" onclick="choose(this,'u2',true)">Most concentrated</button>
+          <button class="opt-btn" onclick="choose(this,'u2',false)">Fewer bacteria</button>
+          <button class="opt-btn" onclick="choose(this,'u2',false)">More acidic</button>
+        </div>
+        <div class="feedback" id="u2-fb">Most concentrated — no fluid intake overnight means higher ADH, more water reabsorption, and more concentrated urine. Easier to detect abnormal substances.</div>
+      </div>
+      <div class="q-card" id="card-u3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text"><span class="key">High specific gravity</span> in urine most likely indicates:</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'u3',false)">Kidney infection</button>
+          <button class="opt-btn" onclick="choose(this,'u3',false)">Overhydration</button>
+          <button class="opt-btn" onclick="choose(this,'u3',true)">Dehydration / concentrated urine</button>
+          <button class="opt-btn" onclick="choose(this,'u3',false)">Normal hydration</button>
+        </div>
+        <div class="feedback" id="u3-fb">Dehydration — high SG means many solutes per volume of water = concentrated urine = dehydrated patient. Low SG = dilute urine = overhydrated.</div>
+      </div>
+      <div class="q-card" id="card-u4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">Is it normal to find <span class="key">epithelial cells</span> in urine?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'u4',false)">No — always abnormal</button>
+          <button class="opt-btn" onclick="choose(this,'u4',true)">Yes — small numbers are normal</button>
+          <button class="opt-btn" onclick="choose(this,'u4',false)">Only in women</button>
+          <button class="opt-btn" onclick="choose(this,'u4',false)">Only if infected</button>
+        </div>
+        <div class="feedback" id="u4-fb">Small numbers are normal — epithelial cells naturally shed from the urinary tract lining. Only large amounts or abnormal types are clinically significant.</div>
+      </div>
+      <div class="q-card" id="card-u5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">Urine positive for <span class="key">albumin (protein)</span> might indicate:</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'u5',false)">Diabetes</button>
+          <button class="opt-btn" onclick="choose(this,'u5',false)">Dehydration</button>
+          <button class="opt-btn" onclick="choose(this,'u5',true)">Kidney damage or disease</button>
+          <button class="opt-btn" onclick="choose(this,'u5',false)">Normal — protein is always present</button>
+        </div>
+        <div class="feedback" id="u5-fb">Kidney damage — healthy kidneys retain protein in the blood. Protein leaking into urine suggests the glomerular filtration barrier is damaged.</div>
+      </div>
+      <div class="q-card" id="card-u6">
+        <div class="q-num">Question 6</div>
+        <div class="q-text">Distilled water has a SG of 1.000. What does a reading of <span class="key">1.030</span> suggest compared to 1.005?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'u6',true)">1.030 = more concentrated / more dehydrated</button>
+          <button class="opt-btn" onclick="choose(this,'u6',false)">1.005 = more concentrated / more dehydrated</button>
+          <button class="opt-btn" onclick="choose(this,'u6',false)">They mean the same thing</button>
+          <button class="opt-btn" onclick="choose(this,'u6',false)">1.030 = overhydrated</button>
+        </div>
+        <div class="feedback" id="u6-fb">1.030 = more concentrated — higher SG means more solutes per volume of water. Further above 1.000 = more concentrated = more dehydrated.</div>
+      </div>
+    </div>
+
+    <!-- EMG -->
+    <div class="sub-panel2" id="sub2-emg">
+      <div class="section-label" style="margin-top:0">EMG — Questions</div>
+
+      <div class="q-card" id="card-e1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">What does <span class="key">EMG</span> measure?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'e1',false)">Force produced by a muscle</button>
+          <button class="opt-btn" onclick="choose(this,'e1',true)">Electrical activity of muscle contractions</button>
+          <button class="opt-btn" onclick="choose(this,'e1',false)">Oxygen consumption in muscle</button>
+          <button class="opt-btn" onclick="choose(this,'e1',false)">Speed of nerve conduction</button>
+        </div>
+        <div class="feedback" id="e1-fb">Electrical activity — EMG (electromyography) records the electrical signals produced when muscle fibers contract. Measured in millivolts (mV).</div>
+      </div>
+
+      <div class="q-card" id="card-e2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">What is a <span class="key">motor unit</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'e2',false)">A group of muscles working together</button>
+          <button class="opt-btn" onclick="choose(this,'e2',true)">One motor neuron + all the muscle fibers it controls</button>
+          <button class="opt-btn" onclick="choose(this,'e2',false)">The minimum force needed to contract a muscle</button>
+          <button class="opt-btn" onclick="choose(this,'e2',false)">A single muscle fiber</button>
+        </div>
+        <div class="feedback" id="e2-fb">One motor neuron + all the muscle fibers it innervates. When the neuron fires, ALL fibers in that unit contract together (all-or-none principle).</div>
+      </div>
+
+      <div class="q-card" id="card-e3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">Which motor units are recruited <span class="key">first</span> and why?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'e3',false)">Largest — they produce the most force</button>
+          <button class="opt-btn" onclick="choose(this,'e3',true)">Smallest — they have the lowest activation threshold</button>
+          <button class="opt-btn" onclick="choose(this,'e3',false)">Random — there is no order</button>
+          <button class="opt-btn" onclick="choose(this,'e3',false)">Largest — they fatigue slowest</button>
+        </div>
+        <div class="feedback" id="e3-fb">Smallest first — they have the lowest activation threshold so they fire with minimal stimulus. Larger units are added as more force is needed (size principle).</div>
+      </div>
+
+      <div class="q-card" id="card-e4">
+        <div class="q-num">True or False</div>
+        <div class="q-text">Surface electrodes can isolate a <span class="key">single motor unit</span>.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'e4',false)">True</button>
+          <button class="opt-btn" onclick="choose(this,'e4',true)">False</button>
+        </div>
+        <div class="feedback" id="e4-fb">False — surface electrodes pick up multiple motor units at once. Needle electrodes are needed to isolate individual motor units with precision.</div>
+      </div>
+
+      <div class="q-card" id="card-e5">
+        <div class="q-num">True or False</div>
+        <div class="q-text">As grip force increases, EMG signal <span class="key">increases</span>.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'e5',true)">True</button>
+          <button class="opt-btn" onclick="choose(this,'e5',false)">False</button>
+        </div>
+        <div class="feedback" id="e5-fb">True — positive linear relationship. More force requires more motor unit recruitment, which produces more electrical activity = higher EMG signal.</div>
+      </div>
+
+      <div class="q-card" id="card-e6">
+        <div class="q-num">Fill in the blank</div>
+        <div class="q-text">The process of activating more motor units as force demand increases is called ________.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'e6',false)">Depolarization</button>
+          <button class="opt-btn" onclick="choose(this,'e6',true)">Motor unit recruitment</button>
+          <button class="opt-btn" onclick="choose(this,'e6',false)">Muscle fatigue</button>
+          <button class="opt-btn" onclick="choose(this,'e6',false)">Interference pattern</button>
+        </div>
+        <div class="feedback" id="e6-fb">Motor unit recruitment — the nervous system progressively activates more and larger motor units to generate increasing levels of force.</div>
+      </div>
+
+      <div class="section-label">Quick Match — EMG Terms</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmemg-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmemg')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Term</div><div class="match-col-lbl">Definition</div>
+      </div>
+      <div class="match-cols" id="mmemg-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmemg-complete">All matched!</div>
+
+      <div class="section-label">Muscle Fatigue — Questions</div>
+
+      <div class="q-card" id="card-mf1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">Define <span class="key">muscle fatigue</span>.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'mf1',false)">The complete inability of a muscle to contract</button>
+          <button class="opt-btn" onclick="choose(this,'mf1',true)">A decline in force output during sustained or repeated contraction</button>
+          <button class="opt-btn" onclick="choose(this,'mf1',false)">Muscle damage caused by overuse</button>
+          <button class="opt-btn" onclick="choose(this,'mf1',false)">The resting state of a muscle between contractions</button>
+        </div>
+        <div class="feedback" id="mf1-fb">Muscle fatigue is the progressive decline in a muscle's ability to generate force during sustained or repeated contractions — even though stimulation continues.</div>
+      </div>
+
+      <div class="q-card" id="card-mf2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">Which of the following is <span class="key">NOT</span> a cause of muscle fatigue?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'mf2',false)">ATP and glycogen depletion</button>
+          <button class="opt-btn" onclick="choose(this,'mf2',false)">Lactic acid and H+ ion buildup</button>
+          <button class="opt-btn" onclick="choose(this,'mf2',false)">Impaired calcium release from the sarcoplasmic reticulum</button>
+          <button class="opt-btn" onclick="choose(this,'mf2',true)">Increased motor unit recruitment</button>
+        </div>
+        <div class="feedback" id="mf2-fb">Increased motor unit recruitment actually helps fight fatigue — it's a compensation strategy. The three main causes are ATP/glycogen depletion, metabolic byproduct buildup (lactic acid, H+), and impaired calcium release.</div>
+      </div>
+
+      <div class="q-card" id="card-mf3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">Why does <span class="key">force decrease</span> as a muscle fatigues?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'mf3',false)">The motor neuron stops sending signals</button>
+          <button class="opt-btn" onclick="choose(this,'mf3',true)">ATP runs low, metabolic byproducts accumulate, and calcium release is impaired — all reducing the muscle's ability to contract</button>
+          <button class="opt-btn" onclick="choose(this,'mf3',false)">The muscle fibers physically tear during contraction</button>
+          <button class="opt-btn" onclick="choose(this,'mf3',false)">Threshold stimulus increases permanently</button>
+        </div>
+        <div class="feedback" id="mf3-fb">Without enough ATP, cross-bridges can't cycle. H+ ions from lactic acid interfere with myosin-actin binding. Impaired Ca2+ release means fewer fibers activate. All three together reduce force output progressively.</div>
+      </div>
+
+      <div class="q-card" id="card-mf4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">How would a <span class="key">bodybuilder's</span> time to fatigue compare to an average person's?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'mf4',false)">Shorter — more muscle mass means more ATP demand</button>
+          <button class="opt-btn" onclick="choose(this,'mf4',true)">Longer — more muscle fibers, greater glycogen stores, and more efficient energy systems</button>
+          <button class="opt-btn" onclick="choose(this,'mf4',false)">The same — muscle fatigue is determined by the nervous system only</button>
+          <button class="opt-btn" onclick="choose(this,'mf4',false)">Shorter — larger muscles produce more lactic acid faster</button>
+        </div>
+        <div class="feedback" id="mf4-fb">A bodybuilder would fatigue much later. Greater muscle mass = more motor units available to rotate in. More glycogen stored = more ATP available. Trained muscles also manage metabolic byproducts more efficiently.</div>
+      </div>
+
+      <div class="q-card" id="card-mf5">
+        <div class="q-num">True or False</div>
+        <div class="q-text">Lactic acid and H+ ion buildup is one cause of <span class="key">muscle fatigue</span>.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'mf5',true)">True</button>
+          <button class="opt-btn" onclick="choose(this,'mf5',false)">False</button>
+        </div>
+        <div class="feedback" id="mf5-fb">True — H+ ions lower the pH inside the muscle cell, which interferes with enzyme activity and myosin-actin cross-bridge cycling, reducing force output.</div>
+      </div>
+    </div>
+
+    <!-- THYROID -->
+    <div class="sub-panel2" id="sub2-thyroid">
+      <div class="section-label" style="margin-top:0">Thyroid / Endocrine — Case Study</div>
+      <div style="background:#13181f;border-radius:10px;padding:12px 14px;margin-bottom:1rem;font-size:13px;color:#aaa;line-height:1.6;border-left:3px solid #7eb8f7;">
+        <strong style="color:#e0e4f0">Case:</strong> Barbara, 46, feels abnormally cold, gained 20 lbs, constant fatigue. Lab results: T4 = 2.2 (low), T3 = 33 (low), TSH = 0.2 (low).
+      </div>
+
+      <div class="q-card" id="card-th1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">Based on Barbara's symptoms and labs, is she suffering from <span class="key">hypothyroidism or hyperthyroidism</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th1',true)">Hypothyroidism</button>
+          <button class="opt-btn" onclick="choose(this,'th1',false)">Hyperthyroidism</button>
+        </div>
+        <div class="feedback" id="th1-fb">Hypothyroidism — her T3 and T4 are both below normal range. Her thyroid is not producing enough hormone, causing every system to slow down (cold, fatigue, weight gain).</div>
+      </div>
+
+      <div class="q-card" id="card-th2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">Why does Barbara feel <span class="key">cold</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th2',false)">Her blood pressure is too low</button>
+          <button class="opt-btn" onclick="choose(this,'th2',true)">Low T3/T4 drops metabolic rate → less energy burned → less heat generated</button>
+          <button class="opt-btn" onclick="choose(this,'th2',false)">She has anemia</button>
+          <button class="opt-btn" onclick="choose(this,'th2',false)">Her sodium levels are too low</button>
+        </div>
+        <div class="feedback" id="th2-fb">T3/T4 regulate metabolism. When they're low, the body's metabolic rate drops, less energy is burned, and less heat is produced as a byproduct — so the patient feels cold.</div>
+      </div>
+
+      <div class="q-card" id="card-th3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">Why has Barbara <span class="key">gained weight</span> without changing her diet?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th3',false)">Her glucose is elevated causing fat storage</button>
+          <button class="opt-btn" onclick="choose(this,'th3',false)">She has excess cortisol</button>
+          <button class="opt-btn" onclick="choose(this,'th3',true)">Low T3/T4 causes metabolic slowdown — fewer calories burned, more stored as fat</button>
+          <button class="opt-btn" onclick="choose(this,'th3',false)">High TSH directly causes fat storage</button>
+        </div>
+        <div class="feedback" id="th3-fb">Low T3/T4 = metabolic slowdown. The body burns fewer calories at rest and stores the excess as fat — even with no diet change.</div>
+      </div>
+
+      <div class="q-card" id="card-th4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">Where is <span class="key">TSH</span> released from, and what does it stand for?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th4',false)">Thyroid — Thyroid Stimulating Hormone</button>
+          <button class="opt-btn" onclick="choose(this,'th4',false)">Hypothalamus — Thyroid Stimulating Hormone</button>
+          <button class="opt-btn" onclick="choose(this,'th4',true)">Pituitary — Thyroid Stimulating Hormone</button>
+          <button class="opt-btn" onclick="choose(this,'th4',false)">Adrenal gland — Thyroid Stimulating Hormone</button>
+        </div>
+        <div class="feedback" id="th4-fb">Pituitary gland — TSH (Thyroid Stimulating Hormone) is released by the anterior pituitary in response to TRH from the hypothalamus. It tells the thyroid to produce T3 and T4.</div>
+      </div>
+
+      <div class="q-card" id="card-th5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">If untreated, will Barbara develop a <span class="key">goiter</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th5',false)">No — goiters only form with hyperthyroidism</button>
+          <button class="opt-btn" onclick="choose(this,'th5',true)">Yes — rising TSH chronically stimulates the thyroid, causing it to enlarge</button>
+          <button class="opt-btn" onclick="choose(this,'th5',false)">No — her TSH is too low to cause a goiter</button>
+          <button class="opt-btn" onclick="choose(this,'th5',false)">Only if her T4 drops below 1.0</button>
+        </div>
+        <div class="feedback" id="th5-fb">Yes — because T3/T4 are low, the pituitary keeps pumping out more and more TSH trying to compensate. Chronic TSH stimulation causes the thyroid gland to physically enlarge = goiter.</div>
+      </div>
+
+      <div class="q-card" id="card-th6">
+        <div class="q-num">True or False</div>
+        <div class="q-text">High TSH always means the patient has <span class="key">hyperthyroidism</span>.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th6',false)">True</button>
+          <button class="opt-btn" onclick="choose(this,'th6',true)">False</button>
+        </div>
+        <div class="feedback" id="th6-fb">False — high TSH means the pituitary is working overtime trying to stimulate a sluggish thyroid. High TSH = hypothyroidism. Low TSH = hyperthyroidism (pituitary backing off because T3/T4 are already too high).</div>
+      </div>
+
+      <div class="q-card" id="card-th7">
+        <div class="q-num">True or False</div>
+        <div class="q-text">The <span class="key">hypothalamus</span> releases TRH.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th7',true)">True</button>
+          <button class="opt-btn" onclick="choose(this,'th7',false)">False</button>
+        </div>
+        <div class="feedback" id="th7-fb">True — TRH (Thyrotropin-Releasing Hormone) comes from the hypothalamus → tells pituitary to release TSH → TSH tells thyroid to produce T3/T4.</div>
+      </div>
+
+      <div class="q-card" id="card-th8">
+        <div class="q-num">Fill in the blank</div>
+        <div class="q-text">Complete the hypothalamic-pituitary-thyroid axis:<br>Hypothalamus → <span class="key">________</span> → Pituitary → <span class="key">________</span> → Thyroid → T3/T4</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'th8',false)">TSH → TRH</button>
+          <button class="opt-btn" onclick="choose(this,'th8',true)">TRH → TSH</button>
+          <button class="opt-btn" onclick="choose(this,'th8',false)">T3 → T4</button>
+          <button class="opt-btn" onclick="choose(this,'th8',false)">TSH → T3</button>
+        </div>
+        <div class="feedback" id="th8-fb">TRH → TSH. Hypothalamus releases TRH (Thyrotropin-Releasing Hormone) → Pituitary releases TSH (Thyroid Stimulating Hormone) → Thyroid produces T3 and T4.</div>
+      </div>
+
+      <div class="section-label">Quick Match — Thyroid Axis</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmthyroid-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmthyroid')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Term</div><div class="match-col-lbl">Role / definition</div>
+      </div>
+      <div class="match-cols" id="mmthyroid-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmthyroid-complete">All matched! You know the thyroid axis.</div>
+    </div>
+
+    <!-- DNA / PROTEIN SYNTHESIS -->
+    <div class="sub-panel2" id="sub2-dna">
+      <div class="section-label" style="margin-top:0">DNA &amp; Protein Synthesis — Questions</div>
+
+      <div class="q-card" id="card-d1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">How many ways does <span class="key">RNA differ from DNA</span>? Name them.</div>
+        <button class="reveal-btn" onclick="toggleAnswer('d1ans', this)">Show answer</button>
+        <div class="answer-box" id="d1ans">
+          <strong>3 differences:</strong><br>
+          1. RNA is <strong>single-stranded</strong>; DNA is double-stranded.<br>
+          2. RNA has <strong>ribose</strong> sugar; DNA has deoxyribose.<br>
+          3. RNA uses <strong>uracil (U)</strong> instead of thymine (T).
+        </div>
+      </div>
+
+      <div class="q-card" id="card-d2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">What is a <span class="key">codon</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d2',false)">A single base on DNA</button>
+          <button class="opt-btn" onclick="choose(this,'d2',false)">A sequence of 2 bases on tRNA</button>
+          <button class="opt-btn" onclick="choose(this,'d2',true)">Every 3 bases on mRNA that codes for a specific amino acid</button>
+          <button class="opt-btn" onclick="choose(this,'d2',false)">The sugar-phosphate backbone of RNA</button>
+        </div>
+        <div class="feedback" id="d2-fb">Every 3 bases on mRNA = one codon, which codes for one specific amino acid. The sequence of codons determines the amino acid sequence of the protein.</div>
+      </div>
+
+      <div class="q-card" id="card-d3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">What is the <span class="key">start codon</span> and what amino acid does it code for?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d3',false)">UAA → Stop</button>
+          <button class="opt-btn" onclick="choose(this,'d3',true)">AUG → Methionine</button>
+          <button class="opt-btn" onclick="choose(this,'d3',false)">UUU → Phenylalanine</button>
+          <button class="opt-btn" onclick="choose(this,'d3',false)">UAG → Stop</button>
+        </div>
+        <div class="feedback" id="d3-fb">AUG is the universal start codon — it codes for methionine and signals the ribosome to begin translation. Every protein starts with methionine (though it may be removed later).</div>
+      </div>
+
+      <div class="q-card" id="card-d4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">What is the role of <span class="key">tRNA</span> during translation?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d4',false)">Makes up the ribosome structure</button>
+          <button class="opt-btn" onclick="choose(this,'d4',false)">Carries the genetic code from the nucleus</button>
+          <button class="opt-btn" onclick="choose(this,'d4',true)">Carries amino acids to the ribosome and matches anti-codons to mRNA codons</button>
+          <button class="opt-btn" onclick="choose(this,'d4',false)">Unzips the DNA double helix</button>
+        </div>
+        <div class="feedback" id="d4-fb">tRNA (transfer RNA) has an amino acid on one end and an anti-codon on the other. It brings the correct amino acid to the ribosome by matching its anti-codon to the mRNA codon.</div>
+      </div>
+
+      <div class="q-card" id="card-d5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">Where does <span class="key">translation</span> occur?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d5',false)">Nucleus</button>
+          <button class="opt-btn" onclick="choose(this,'d5',false)">Mitochondria</button>
+          <button class="opt-btn" onclick="choose(this,'d5',true)">Ribosome (in the cytoplasm)</button>
+          <button class="opt-btn" onclick="choose(this,'d5',false)">Cell membrane</button>
+        </div>
+        <div class="feedback" id="d5-fb">Ribosome — mRNA leaves the nucleus, moves into the cytoplasm, and reaches the ribosome where the genetic code is translated into an amino acid sequence (protein).</div>
+      </div>
+
+      <div class="q-card" id="card-d6">
+        <div class="q-num">Question 6</div>
+        <div class="q-text">What type of bond forms between amino acids during translation?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d6',false)">Hydrogen bond</button>
+          <button class="opt-btn" onclick="choose(this,'d6',true)">Peptide bond</button>
+          <button class="opt-btn" onclick="choose(this,'d6',false)">Ionic bond</button>
+          <button class="opt-btn" onclick="choose(this,'d6',false)">Covalent bond</button>
+        </div>
+        <div class="feedback" id="d6-fb">Peptide bond — formed between two amino acids via dehydration synthesis. The chain of amino acids linked by peptide bonds is called a polypeptide.</div>
+      </div>
+
+      <div class="q-card" id="card-d7">
+        <div class="q-num">Question 7</div>
+        <div class="q-text">Which mutation causes <span class="key">more overall change</span> — substitution or addition? Why?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d7',false)">Substitution — it changes the most important base</button>
+          <button class="opt-btn" onclick="choose(this,'d7',true)">Addition — it causes a frameshift, changing every amino acid after the mutation site</button>
+          <button class="opt-btn" onclick="choose(this,'d7',false)">They cause equal amounts of change</button>
+          <button class="opt-btn" onclick="choose(this,'d7',false)">Substitution — it affects the entire reading frame</button>
+        </div>
+        <div class="feedback" id="d7-fb">Addition — inserting a base shifts the entire reading frame, scrambling every codon after the mutation point. Substitution usually only changes one codon and therefore one amino acid.</div>
+      </div>
+
+      <div class="q-card" id="card-d8">
+        <div class="q-num">Question 8</div>
+        <div class="q-text">Can a mutation be <span class="key">neutral</span> — causing no change to the protein?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d8',false)">No — every mutation changes the protein</button>
+          <button class="opt-btn" onclick="choose(this,'d8',true)">Yes — multiple codons can code for the same amino acid</button>
+          <button class="opt-btn" onclick="choose(this,'d8',false)">Only if the mutation occurs in tRNA</button>
+          <button class="opt-btn" onclick="choose(this,'d8',false)">Only frameshift mutations can be neutral</button>
+        </div>
+        <div class="feedback" id="d8-fb">Yes — this is called a silent or neutral mutation. The genetic code is redundant: multiple codons code for the same amino acid. So a base change may produce a different codon that still codes for the same amino acid, leaving the protein unchanged.</div>
+      </div>
+
+      <div class="q-card" id="card-d9">
+        <div class="q-num">True or False</div>
+        <div class="q-text">In DNA, adenine always pairs with <span class="key">guanine</span>.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d9',false)">True</button>
+          <button class="opt-btn" onclick="choose(this,'d9',true)">False</button>
+        </div>
+        <div class="feedback" id="d9-fb">False — adenine (A) pairs with thymine (T), and cytosine (C) pairs with guanine (G). Remember: A-T and C-G are the complementary base pairs in DNA.</div>
+      </div>
+
+      <div class="q-card" id="card-d10">
+        <div class="q-num">True or False</div>
+        <div class="q-text">Transcription converts DNA into <span class="key">mRNA</span>.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d10',true)">True</button>
+          <button class="opt-btn" onclick="choose(this,'d10',false)">False</button>
+        </div>
+        <div class="feedback" id="d10-fb">True — transcription happens in the nucleus where DNA is used as a template to produce mRNA. The mRNA then travels to the ribosome for translation into protein.</div>
+      </div>
+
+      <div class="q-card" id="card-d11">
+        <div class="q-num">Fill in the blank</div>
+        <div class="q-text">The three steps of translation are: initiation, ________, and ________.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'d11',false)">replication → termination</button>
+          <button class="opt-btn" onclick="choose(this,'d11',false)">transcription → elongation</button>
+          <button class="opt-btn" onclick="choose(this,'d11',true)">elongation → termination</button>
+          <button class="opt-btn" onclick="choose(this,'d11',false)">elongation → replication</button>
+        </div>
+        <div class="feedback" id="d11-fb">Initiation → Elongation → Termination. Initiation = ribosome assembles at start codon. Elongation = amino acid chain builds. Termination = stop codon reached, protein released.</div>
+      </div>
+
+      <div class="section-label">Quick Match — RNA Types</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmdna-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmdna')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Term</div><div class="match-col-lbl">Role</div>
+      </div>
+      <div class="match-cols" id="mmdna-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmdna-complete">All matched! You know your RNA types.</div>
+
+      <div class="section-label">Quick Match — DNA Base Pairs</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmdnabp-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmdnabp')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">DNA Base</div><div class="match-col-lbl">Pairs with</div>
+      </div>
+      <div class="match-cols" id="mmdnabp-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmdnabp-complete">All matched! You know your DNA base pairs.</div>
+
+      <div class="section-label">Quick Match — RNA Base Pairs</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmrnabp-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmrnabp')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Base</div><div class="match-col-lbl">Pairs with (RNA)</div>
+      </div>
+      <div class="match-cols" id="mmrnabp-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmrnabp-complete">All matched! You know your RNA base pairs.</div>
+    </div>
+
+    <!-- WBC LAB -->
+    <div class="sub-panel2" id="sub2-wbclab">
+      <div class="section-label" style="margin-top:0">WBC Lab — Questions</div>
+
+      <div class="q-card" id="card-w1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">What is the medical term for a <span class="key">low</span> WBC count?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w1',false)">Leukocytosis</button>
+          <button class="opt-btn" onclick="choose(this,'w1',true)">Leukopenia</button>
+          <button class="opt-btn" onclick="choose(this,'w1',false)">Anemia</button>
+          <button class="opt-btn" onclick="choose(this,'w1',false)">Thrombocytopenia</button>
+        </div>
+        <div class="feedback" id="w1-fb">Leukopenia — "leuko" = white, "penia" = deficiency. A low WBC count means the immune system is compromised and less able to fight infection.</div>
+      </div>
+
+      <div class="q-card" id="card-w2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">What is the medical term for a <span class="key">high</span> WBC count?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w2',true)">Leukocytosis</button>
+          <button class="opt-btn" onclick="choose(this,'w2',false)">Leukopenia</button>
+          <button class="opt-btn" onclick="choose(this,'w2',false)">Polycythemia</button>
+          <button class="opt-btn" onclick="choose(this,'w2',false)">Leukemia only</button>
+        </div>
+        <div class="feedback" id="w2-fb">Leukocytosis — "leuko" = white, "cytosis" = increase in cells. Usually a sign the body is fighting an infection or inflammation, but can also indicate leukemia.</div>
+      </div>
+
+      <div class="q-card" id="card-w3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">What is the <span class="key">normal total WBC count</span> range?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w3',false)">500–1,000 cells/μL</button>
+          <button class="opt-btn" onclick="choose(this,'w3',false)">1,000–3,000 cells/μL</button>
+          <button class="opt-btn" onclick="choose(this,'w3',true)">4,500–11,000 cells/μL</button>
+          <button class="opt-btn" onclick="choose(this,'w3',false)">15,000–20,000 cells/μL</button>
+        </div>
+        <div class="feedback" id="w3-fb">4,500–11,000 cells/μL (or 4.5–11 × 10³/μL) — this is the normal range for a total WBC count. Don't forget the units on the exam!</div>
+      </div>
+
+      <div class="q-card" id="card-w4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">Why must blood type be determined <span class="key">before surgery</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w4',false)">To check if the patient is dehydrated</button>
+          <button class="opt-btn" onclick="choose(this,'w4',true)">To prevent agglutination — incompatible blood transfused during surgery can clump and block vessels</button>
+          <button class="opt-btn" onclick="choose(this,'w4',false)">To determine anesthesia dose</button>
+          <button class="opt-btn" onclick="choose(this,'w4',false)">Blood type doesn't matter during surgery</button>
+        </div>
+        <div class="feedback" id="w4-fb">If incompatible blood is transfused, the patient's immune system attacks the donor RBCs — causing agglutination (clumping). This can block blood vessels and be life-threatening.</div>
+      </div>
+
+      <div class="q-card" id="card-w5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">What is <span class="key">agglutination</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w5',false)">The process of making new red blood cells</button>
+          <button class="opt-btn" onclick="choose(this,'w5',false)">A type of mutation in WBCs</button>
+          <button class="opt-btn" onclick="choose(this,'w5',true)">Clumping of RBCs when incompatible blood types are mixed</button>
+          <button class="opt-btn" onclick="choose(this,'w5',false)">The breakdown of hemoglobin</button>
+        </div>
+        <div class="feedback" id="w5-fb">Agglutination = clumping. When incompatible blood is mixed, antibodies in the recipient's blood bind to antigens on the donor's RBCs, causing them to clump together.</div>
+      </div>
+
+      <div class="q-card" id="card-w6">
+        <div class="q-num">True or False</div>
+        <div class="q-text">Leukopenia means a <span class="key">high</span> WBC count.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w6',false)">True</button>
+          <button class="opt-btn" onclick="choose(this,'w6',true)">False</button>
+        </div>
+        <div class="feedback" id="w6-fb">False — leukopenia means LOW white blood cells. "Penia" always means deficiency or decrease. Leukocytosis = high WBC count.</div>
+      </div>
+
+      <div class="q-card" id="card-w7">
+        <div class="q-num">Question 7</div>
+        <div class="q-text">Which of the following would most likely cause <span class="key">leukopenia</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w7',false)">Bacterial infection</button>
+          <button class="opt-btn" onclick="choose(this,'w7',false)">Leukemia</button>
+          <button class="opt-btn" onclick="choose(this,'w7',true)">Chemotherapy or bone marrow disorder</button>
+          <button class="opt-btn" onclick="choose(this,'w7',false)">Allergic reaction</button>
+        </div>
+        <div class="feedback" id="w7-fb">Chemotherapy kills rapidly dividing cells — including bone marrow stem cells that produce WBCs. Other causes include bone marrow disorders, autoimmune diseases, and some viral infections (like HIV).</div>
+      </div>
+
+      <div class="q-card" id="card-w8">
+        <div class="q-num">Question 8</div>
+        <div class="q-text">Which of the following would most likely cause <span class="key">leukocytosis</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'w8',false)">Chemotherapy</button>
+          <button class="opt-btn" onclick="choose(this,'w8',false)">Bone marrow failure</button>
+          <button class="opt-btn" onclick="choose(this,'w8',true)">Bacterial infection or leukemia</button>
+          <button class="opt-btn" onclick="choose(this,'w8',false)">Severe dehydration</button>
+        </div>
+        <div class="feedback" id="w8-fb">Bacterial infection triggers the immune system to rapidly produce more WBCs to fight the invader. Leukemia causes uncontrolled WBC production. Inflammation and stress can also cause leukocytosis.</div>
+      </div>
+
+      <div class="section-label">Quick Match — WBC Terms</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmwbc-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmwbc')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Term</div><div class="match-col-lbl">Definition</div>
+      </div>
+      <div class="match-cols" id="mmwbc-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmwbc-complete">All matched!</div>
+    </div>
+
+    <!-- NEUROSIM -->
+    <div class="sub-panel2" id="sub2-neurosim">
+      <div class="section-label" style="margin-top:0">NeuroSim — Giant Squid Action Potential</div>
+
+      <div class="q-card" id="card-ns1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">What does <span class="key">TTX (Tetrodotoxin)</span> do to the action potential?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns1',false)">Blocks K+ channels — AP fires but won't come back down</button>
+          <button class="opt-btn" onclick="choose(this,'ns1',true)">Blocks Na+ channels — no AP can be produced</button>
+          <button class="opt-btn" onclick="choose(this,'ns1',false)">Prevents Na+ channel inactivation — AP never returns to resting</button>
+          <button class="opt-btn" onclick="choose(this,'ns1',false)">Increases the threshold stimulus needed</button>
+        </div>
+        <div class="feedback" id="ns1-fb">TTX blocks voltage-gated Na+ channels. Since Na+ rushing in is what causes depolarization, no Na+ in = no action potential. The membrane stays at resting potential.</div>
+      </div>
+
+      <div class="q-card" id="card-ns2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">What does <span class="key">TEA (Tetraethylammonium)</span> do to the action potential?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns2',false)">Blocks Na+ channels — no AP fires</button>
+          <button class="opt-btn" onclick="choose(this,'ns2',true)">Blocks K+ channels — AP fires but cannot repolarize</button>
+          <button class="opt-btn" onclick="choose(this,'ns2',false)">Blocks both Na+ and K+ channels</button>
+          <button class="opt-btn" onclick="choose(this,'ns2',false)">Eliminates the threshold stimulus</button>
+        </div>
+        <div class="feedback" id="ns2-fb">TEA blocks K+ channels. K+ flowing OUT is what brings the membrane back down during repolarization. Without it, the AP fires but stays elevated — it can't come back down to resting potential.</div>
+      </div>
+
+      <div class="q-card" id="card-ns3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">What does <span class="key">Scorpion Toxin</span> do to the action potential?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns3',false)">Blocks Na+ channels only</button>
+          <button class="opt-btn" onclick="choose(this,'ns3',false)">Blocks K+ channels only</button>
+          <button class="opt-btn" onclick="choose(this,'ns3',true)">Prevents Na+ channel inactivation and blocks K+ — AP never comes down</button>
+          <button class="opt-btn" onclick="choose(this,'ns3',false)">Increases Na+ permeability permanently</button>
+        </div>
+        <div class="feedback" id="ns3-fb">Scorpion toxin keeps Na+ channels from inactivating AND blocks K+ channels — so Na+ keeps rushing in and K+ can't flow out. The AP fires and never returns to resting. No regulation of either pump.</div>
+      </div>
+
+      <div class="q-card" id="card-ns4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">What is the <span class="key">absolute refractory period</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns4',false)">A period where a stronger stimulus can still trigger a second AP</button>
+          <button class="opt-btn" onclick="choose(this,'ns4',true)">A period where NO stimulus, regardless of strength, can trigger another AP</button>
+          <button class="opt-btn" onclick="choose(this,'ns4',false)">The delay between stimulus and start of the AP</button>
+          <button class="opt-btn" onclick="choose(this,'ns4',false)">The time it takes Na+ to reset after an AP</button>
+        </div>
+        <div class="feedback" id="ns4-fb">Absolute refractory period — Na+ channels are inactivated (not just closed). No amount of stimulation can open them again until they fully reset. This is why APs don't overlap and travel in one direction.</div>
+      </div>
+
+      <div class="q-card" id="card-ns5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">What is the <span class="key">relative refractory period</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns5',false)">No stimulus can trigger a second AP</button>
+          <button class="opt-btn" onclick="choose(this,'ns5',true)">A stronger than normal stimulus CAN trigger a second AP</button>
+          <button class="opt-btn" onclick="choose(this,'ns5',false)">The membrane is at its peak depolarization</button>
+          <button class="opt-btn" onclick="choose(this,'ns5',false)">Na+ channels are fully inactivated</button>
+        </div>
+        <div class="feedback" id="ns5-fb">Relative refractory period — some Na+ channels have reset, but K+ channels are still open causing hyperpolarization. A second AP IS possible but requires a stronger stimulus than normal to overcome the hyperpolarized state.</div>
+      </div>
+
+      <div class="q-card" id="card-ns6">
+        <div class="q-num">Question 6</div>
+        <div class="q-text">What is the <span class="key">latent period</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns6',false)">The peak of the action potential</button>
+          <button class="opt-btn" onclick="choose(this,'ns6',false)">The period after the AP where the cell can't fire again</button>
+          <button class="opt-btn" onclick="choose(this,'ns6',true)">The delay between the stimulus and the start of the AP response</button>
+          <button class="opt-btn" onclick="choose(this,'ns6',false)">The time it takes K+ channels to open</button>
+        </div>
+        <div class="feedback" id="ns6-fb">The latent period is the brief delay between when a stimulus is applied and when the action potential actually begins. During this time the membrane is building toward threshold.</div>
+      </div>
+
+      <div class="q-card" id="card-ns7">
+        <div class="q-num">True or False</div>
+        <div class="q-text">During the <span class="key">absolute refractory period</span>, a stronger stimulus can still trigger a second AP.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns7',false)">True</button>
+          <button class="opt-btn" onclick="choose(this,'ns7',true)">False</button>
+        </div>
+        <div class="feedback" id="ns7-fb">False — absolute means absolute. Na+ channels are completely inactivated. No stimulus of any strength can produce another AP until they reset. That's what makes it different from the relative refractory period.</div>
+      </div>
+
+      <div class="q-card" id="card-ns8">
+        <div class="q-num">True or False</div>
+        <div class="q-text">TEA blocks <span class="key">sodium</span> channels.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'ns8',false)">True</button>
+          <button class="opt-btn" onclick="choose(this,'ns8',true)">False</button>
+        </div>
+        <div class="feedback" id="ns8-fb">False — TEA blocks potassium (K+) channels. TTX is the one that blocks sodium (Na+) channels. Easy way to remember: TTX = Na+ blocked = no AP at all. TEA = K+ blocked = AP fires but can't come back down.</div>
+      </div>
+
+      <div class="section-label">Quick Match — Drugs &amp; Effects</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmns-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmns')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Drug / term</div><div class="match-col-lbl">What it does</div>
+      </div>
+      <div class="match-cols" id="mmns-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmns-complete">All matched! You know your neurotoxins.</div>
+    </div>
+
+    <!-- BLOOD PRESSURE -->
+    <div class="sub-panel2" id="sub2-bp">
+      <div class="section-label" style="margin-top:0">Blood Pressure — Questions</div>
+
+      <div class="q-card" id="card-bp1">
+        <div class="q-num">Question 1</div>
+        <div class="q-text">What is the <span class="key">normal blood pressure</span> reading?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'bp1',false)">80/120 mmHg</button>
+          <button class="opt-btn" onclick="choose(this,'bp1',true)">120/80 mmHg</button>
+          <button class="opt-btn" onclick="choose(this,'bp1',false)">140/90 mmHg</button>
+          <button class="opt-btn" onclick="choose(this,'bp1',false)">100/60 mmHg</button>
+        </div>
+        <div class="feedback" id="bp1-fb">120/80 mmHg — 120 is systolic (during contraction), 80 is diastolic (at rest). Don't mix up the order on the exam.</div>
+      </div>
+
+      <div class="q-card" id="card-bp2">
+        <div class="q-num">Question 2</div>
+        <div class="q-text">What does the <span class="key">systolic</span> number represent?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'bp2',false)">Pressure in the arteries when the heart is at rest</button>
+          <button class="opt-btn" onclick="choose(this,'bp2',true)">Pressure in the arteries when the heart contracts</button>
+          <button class="opt-btn" onclick="choose(this,'bp2',false)">The average of systolic and diastolic</button>
+          <button class="opt-btn" onclick="choose(this,'bp2',false)">The pressure in the veins</button>
+        </div>
+        <div class="feedback" id="bp2-fb">Systolic = contraction. When the heart beats and pushes blood out, pressure in the arteries peaks — that's the top number. Memory trick: Systolic = Squeeze.</div>
+      </div>
+
+      <div class="q-card" id="card-bp3">
+        <div class="q-num">Question 3</div>
+        <div class="q-text">What does the <span class="key">diastolic</span> number represent?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'bp3',false)">Pressure during heart contraction</button>
+          <button class="opt-btn" onclick="choose(this,'bp3',true)">Pressure in the arteries when the heart is at rest between beats</button>
+          <button class="opt-btn" onclick="choose(this,'bp3',false)">The total blood volume</button>
+          <button class="opt-btn" onclick="choose(this,'bp3',false)">The pulse rate per minute</button>
+        </div>
+        <div class="feedback" id="bp3-fb">Diastolic = relaxation. Between heartbeats, the heart fills back up. The pressure in the arteries drops to its lowest point — that's the bottom number. Memory trick: Diastolic = Down/resting.</div>
+      </div>
+
+      <div class="q-card" id="card-bp4">
+        <div class="q-num">Question 4</div>
+        <div class="q-text">What is <span class="key">hypertension</span>?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'bp4',false)">Abnormally low blood pressure</button>
+          <button class="opt-btn" onclick="choose(this,'bp4',true)">Chronically elevated blood pressure, typically above 140/90 mmHg</button>
+          <button class="opt-btn" onclick="choose(this,'bp4',false)">A temporary spike in BP during exercise</button>
+          <button class="opt-btn" onclick="choose(this,'bp4',false)">Normal BP in elderly patients</button>
+        </div>
+        <div class="feedback" id="bp4-fb">Hypertension = high blood pressure, chronically above 140/90 mmHg. It often has no symptoms (called the "silent killer") but causes serious long-term damage to the heart, vessels, kidneys, and brain.</div>
+      </div>
+
+      <div class="q-card" id="card-bp5">
+        <div class="q-num">Question 5</div>
+        <div class="q-text">Which of the following is a <span class="key">negative effect</span> of long-term high blood pressure?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'bp5',false)">Increased bone density</button>
+          <button class="opt-btn" onclick="choose(this,'bp5',true)">Stroke, heart attack, kidney damage, and vision loss</button>
+          <button class="opt-btn" onclick="choose(this,'bp5',false)">Lower resting heart rate</button>
+          <button class="opt-btn" onclick="choose(this,'bp5',false)">Improved circulation</button>
+        </div>
+        <div class="feedback" id="bp5-fb">Chronically high BP damages arterial walls, forces the heart to work harder, and strains organs that depend on healthy blood flow — especially the kidneys, brain, eyes, and heart itself.</div>
+      </div>
+
+      <div class="q-card" id="card-bp6">
+        <div class="q-num">Question 6</div>
+        <div class="q-text">What might <span class="key">extremely low blood pressure</span> indicate?</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'bp6',false)">The patient is very physically fit</button>
+          <button class="opt-btn" onclick="choose(this,'bp6',false)">Normal aging process</button>
+          <button class="opt-btn" onclick="choose(this,'bp6',true)">Dehydration, significant blood loss, heart failure, or shock</button>
+          <button class="opt-btn" onclick="choose(this,'bp6',false)">Hypertension in disguise</button>
+        </div>
+        <div class="feedback" id="bp6-fb">Extremely low BP (hypotension) means not enough blood is reaching organs. Causes include dehydration, hemorrhage (blood loss), heart failure, or septic/anaphylactic shock. It can be life-threatening if severe.</div>
+      </div>
+
+      <div class="q-card" id="card-bp7">
+        <div class="q-num">True or False</div>
+        <div class="q-text">The <span class="key">systolic</span> pressure is always lower than the diastolic pressure.</div>
+        <div class="btn-row">
+          <button class="opt-btn" onclick="choose(this,'bp7',false)">True</button>
+          <button class="opt-btn" onclick="choose(this,'bp7',true)">False</button>
+        </div>
+        <div class="feedback" id="bp7-fb">False — systolic is always HIGHER. It's the pressure during contraction (peak force). Diastolic is the lower number, representing pressure at rest. 120 systolic / 80 diastolic — the bigger number is always on top.</div>
+      </div>
+
+      <div class="section-label">Quick Match — Blood Pressure Terms</div>
+      <div class="match-score-bar">
+        <div class="match-score-txt">Matched: <strong id="mmbp-score">0</strong> / 4</div>
+        <button class="reset-btn" onclick="buildMatchG('mmbp')">Shuffle &amp; Retry</button>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+        <div class="match-col-lbl">Term</div><div class="match-col-lbl">Definition</div>
+      </div>
+      <div class="match-cols" id="mmbp-left-wrap" style="display:contents;"></div>
+      <div class="match-complete" id="mmbp-complete">All matched!</div>
+    </div>
+  </div><!-- end panel-labs -->
+
+  <!-- TOOLS & METHODS -->
+  <div class="top-panel" id="panel-tools">
+    <div class="section-label" style="margin-top:0">Tools &amp; Methods — Quick Reference</div>
+    <p style="font-size:13px;color:#888;margin-bottom:1.5rem;">Know what equipment was used and how each lab was conducted.</p>
+
+    <div class="tip-card">
+      <div class="tip-disease">Macromolecules Lab</div>
+      <div class="tip-body">
+        <span>Tools:</span> Test tubes, hot water bath / hot plate, brown paper towel, dropper, wax pencil, iodine, Benedict's reagent, Biuret reagent, salad oil (positive control for lipids), glucose solution, starch solution, egg albumin.<br><br>
+        <span>Method:</span> First ran positive and negative controls for each test to know what results look like. Then tested 3 food samples with all 4 tests (Benedict's, iodine, Biuret, paper test). Recorded color changes and translucency. Wrote formal lab report with hypothesis, data tables, and conclusion.
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-disease">Osmolarity &amp; Tonicity Lab</div>
+      <div class="tip-body">
+        <span>Tools:</span> Microscope, slides, cover slips, lancet, alcohol swab, microhematocrit tubes (heparinized), NaCl solutions (1%, 2%, 3%, 5%), distilled water (dH₂O), onion membrane (optional).<br><br>
+        <span>Method:</span> Finger prick to collect own blood. Made slides with blood + DI water (hypotonic) and blood + 5% NaCl (hypertonic) to observe extreme effects. Then mixed blood with varying NaCl concentrations (1–3%) until RBCs maintained normal shape — that concentration = isotonic. Measured and recorded RBC size and shape under microscope at each concentration.
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-disease">Neuromuscular Reflexes Lab</div>
+      <div class="tip-body">
+        <span>Tools:</span> Reflex hammer, Neurosim (computer simulation software).<br><br>
+        <span>Method:</span> Used reflex hammer to test patellar reflex and Babinski reflex on lab partner. Graded reflexes on a 0–4+ scale (2+ = normal). Used Neurosim to simulate nerve and muscle electrophysiology and observe how stimuli affect reflex responses.
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-disease">Urinalysis Lab</div>
+      <div class="tip-body">
+        <span>Tools:</span> Refractometer, dipstick reagent strips, microscope, slides, centrifuge, first morning urine sample.<br><br>
+        <span>Method:</span> Used refractometer to measure specific gravity. Dipped reagent strip into urine and compared color changes to chart (tested pH, glucose, protein, etc.). Centrifuged urine to get sediment, made slide, examined under microscope for cells, bacteria, and crystals.
+      </div>
+    </div>
+
+    <div class="tip-card">
+      <div class="tip-disease">EMG Lab</div>
+      <div class="tip-body">
+        <span>Tools:</span> iWorx EMG system, surface skin electrodes (placed on forearm), hand grip dynamometer. EMG measured in mV, force in PSI.<br><br>
+        <span>Method:</span> Part A — performed 5 grips of increasing strength, recorded both EMG signal and force output each time. Observed positive linear relationship between force and EMG. Part B — held maximum grip until force dropped to 50% of max, recording how long it took and how force declined over time (muscle fatigue).
+      </div>
+    </div>
+
+    <div class="section-label">Quick Match — Lab to Tool</div>
+    <div class="match-score-bar">
+      <div class="match-score-txt">Matched: <strong id="mmtools-score">0</strong> / 5</div>
+      <button class="reset-btn" onclick="buildMatchG('mmtools')">Shuffle &amp; Retry</button>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;">
+      <div class="match-col-lbl">Lab</div><div class="match-col-lbl">Key tool / reagent</div>
+    </div>
+    <div class="match-cols" id="mmtools-left-wrap" style="display:contents;"></div>
+    <div class="match-complete" id="mmtools-complete">All matched! You know your labs.</div>
+  </div><!-- end panel-tools -->
+
+  <!-- BLOOD TYPING PRACTICE -->
+  <div class="top-panel" id="panel-blood">
+    <div class="section-label" style="margin-top:0">Blood Typing Practice</div>
+    <p style="font-size:13px;color:#888;margin-bottom:1.5rem;line-height:1.6;">Random patient each round. Figure out the blood type from the clumping results.<br><strong style="color:#e0e4f0">Clumping = antigen is present.</strong></p>
+
+    <div class="q-card" id="bt-practice-card">
+      <div class="q-num" id="bt-patient-label">Patient 1</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.25rem;">
+        <div style="background:#13181f;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#888;margin-bottom:8px;">Anti-A</div>
+          <div style="font-size:18px;font-weight:700;" id="bt-a">—</div>
+        </div>
+        <div style="background:#13181f;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#888;margin-bottom:8px;">Anti-B</div>
+          <div style="font-size:18px;font-weight:700;" id="bt-b">—</div>
+        </div>
+        <div style="background:#13181f;border-radius:10px;padding:12px;text-align:center;">
+          <div style="font-size:10px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:#888;margin-bottom:8px;">Anti-Rh</div>
+          <div style="font-size:18px;font-weight:700;" id="bt-rh">—</div>
+        </div>
+      </div>
+      <div class="q-text" style="margin-bottom:14px;">What is this patient's blood type?</div>
+      <div class="btn-row" id="bt-answer-row">
+        <button class="opt-btn" onclick="btGuess('A+')">A+</button>
+        <button class="opt-btn" onclick="btGuess('A-')">A−</button>
+        <button class="opt-btn" onclick="btGuess('B+')">B+</button>
+        <button class="opt-btn" onclick="btGuess('B-')">B−</button>
+        <button class="opt-btn" onclick="btGuess('AB+')">AB+</button>
+        <button class="opt-btn" onclick="btGuess('AB-')">AB−</button>
+        <button class="opt-btn" onclick="btGuess('O+')">O+</button>
+        <button class="opt-btn" onclick="btGuess('O-')">O−</button>
+      </div>
+      <div class="feedback" id="bt-practice-fb"></div>
+    </div>
+
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-top:1rem;flex-wrap:wrap;gap:10px;">
+      <div style="font-size:13px;color:#888;">Streak: <strong style="color:#3ecf8e;font-size:16px;" id="bt-streak">0</strong> &nbsp;|&nbsp; Best: <strong style="color:#7eb8f7;" id="bt-best">0</strong></div>
+      <button class="reset-btn" onclick="btNext()">Next patient →</button>
+    </div>
+
+    <div class="section-label">Reference table</div>
+    <div style="background:#1a1d27;border:1px solid #2a2d3a;border-radius:14px;overflow:hidden;">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;">
+        <thead>
+          <tr style="background:#13181f;">
+            <th style="padding:10px 14px;text-align:left;color:#555;font-weight:600;font-size:11px;text-transform:uppercase;">Anti-A</th>
+            <th style="padding:10px 14px;text-align:left;color:#555;font-weight:600;font-size:11px;text-transform:uppercase;">Anti-B</th>
+            <th style="padding:10px 14px;text-align:left;color:#555;font-weight:600;font-size:11px;text-transform:uppercase;">Anti-Rh</th>
+            <th style="padding:10px 14px;text-align:left;color:#3ecf8e;font-weight:700;font-size:11px;text-transform:uppercase;">Blood Type</th>
+          </tr>
+        </thead>
+        <tbody id="bt-ref-table">
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">A+</td></tr>
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">A−</td></tr>
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">B+</td></tr>
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">B−</td></tr>
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">AB+</td></tr>
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">AB−</td></tr>
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#3ecf8e;">Clumps</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">O+</td></tr>
+          <tr style="border-top:1px solid #2a2d3a;"><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;color:#ff6b6b;">No clump</td><td style="padding:10px 14px;font-weight:700;color:#e0e4f0;">O−</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div><!-- end panel-blood -->
+
+</div><!-- end container -->
+<script>
+// EXAM
+let score = 0, answered = 0;
+const totalInteractive = 9;
+const answered_ids = {};
+
+function updateScore() {
+  const pct = Math.round((score / totalInteractive) * 100);
+  document.getElementById('scoreInner').textContent = score;
+  document.getElementById('scoreLabel').textContent = answered + ' / ' + totalInteractive;
+  document.getElementById('scoreCircle').style.setProperty('--pct', pct);
+}
+
+function choose(btn, id, correct) {
+  if (answered_ids[id]) return;
+  answered_ids[id] = true; answered++;
+  const siblings = btn.closest('.btn-row').querySelectorAll('.opt-btn');
+  siblings.forEach(b => b.classList.add('disabled'));
+  const fb = document.getElementById(id + '-fb');
+  const card = document.getElementById('card-' + id);
+  if (correct) {
+    btn.classList.add('correct'); score++;
+    if (fb) fb.className = 'feedback right show';
+    if (card) card.classList.add('answered-correct');
+  } else {
+    btn.classList.add('wrong');
+    siblings.forEach(b => { if ((b.getAttribute('onclick')||'').includes(',true)')) b.classList.add('correct'); });
+    if (fb) fb.className = 'feedback wrong-f show';
+    if (card) card.classList.add('answered-wrong');
+  }
+  updateScore();
+}
+
+function toggleAnswer(id, btn) {
+  const box = document.getElementById(id);
+  box.classList.toggle('show');
+  btn.textContent = box.classList.contains('show') ? 'Hide answer' : 'Show answer';
+}
+
+function toggleAP(btn) {
+  const w = document.getElementById('apWrap');
+  w.classList.toggle('show');
+  btn.textContent = w.classList.contains('show') ? 'Hide diagram' : 'Show diagram';
+}
+
+// TABS
+const topKeys = ['exam','gi','labs','blood','tools'];
+const subKeys = ['tips','flash','msym','marea','mtreat'];
+
+function switchTop(id) {
+  document.querySelectorAll('.top-tab').forEach((t,i) => t.classList.toggle('active', topKeys[i]===id));
+  document.querySelectorAll('.top-panel').forEach(p => p.classList.toggle('active', p.id==='panel-'+id));
+}
+
+function resetExam() {
+  score = 0; answered = 0;
+  Object.keys(answered_ids).forEach(k => delete answered_ids[k]);
+  updateScore();
+  document.querySelectorAll('.q-card').forEach(c => c.classList.remove('answered-correct','answered-wrong'));
+  document.querySelectorAll('.opt-btn').forEach(b => b.classList.remove('correct','wrong','disabled'));
+  document.querySelectorAll('.feedback').forEach(f => { f.className = 'feedback'; });
+  document.querySelectorAll('.answer-box').forEach(b => b.classList.remove('show'));
+  document.querySelectorAll('.reveal-btn').forEach(b => {
+    if (b.textContent.includes('Hide')) b.textContent = b.textContent.replace('Hide','Show');
+  });
+  const ap = document.getElementById('apWrap');
+  if (ap) { ap.classList.remove('show'); ap.previousElementSibling.textContent = 'Show diagram'; }
+}
+
+// BLOOD TYPING PRACTICE
+const btTypes = [
+  { type:'A+',  a:true,  b:false, rh:true  },
+  { type:'A-',  a:true,  b:false, rh:false },
+  { type:'B+',  a:false, b:true,  rh:true  },
+  { type:'B-',  a:false, b:true,  rh:false },
+  { type:'AB+', a:true,  b:true,  rh:true  },
+  { type:'AB-', a:true,  b:true,  rh:false },
+  { type:'O+',  a:false, b:false, rh:true  },
+  { type:'O-',  a:false, b:false, rh:false },
+];
+let btCurrent = null, btStreak = 0, btBest = 0, btPatientNum = 0, btAnswered = false;
+
+function btNext() {
+  btAnswered = false;
+  btPatientNum++;
+  btCurrent = btTypes[Math.floor(Math.random() * btTypes.length)];
+  document.getElementById('bt-patient-label').textContent = 'Patient ' + btPatientNum;
+  const clump = v => v
+    ? '<span style="color:#3ecf8e">Clumps \u2713<\/span>'
+    : '<span style="color:#ff6b6b">No clump \u2717<\/span>';
+  document.getElementById('bt-a').innerHTML  = clump(btCurrent.a);
+  document.getElementById('bt-b').innerHTML  = clump(btCurrent.b);
+  document.getElementById('bt-rh').innerHTML = clump(btCurrent.rh);
+  const fb = document.getElementById('bt-practice-fb');
+  fb.className = 'feedback';
+  document.querySelectorAll('#bt-answer-row .opt-btn').forEach(b => b.classList.remove('correct','wrong','disabled'));
+}
+
+function btGuess(guess) {
+  if (btAnswered) return;
+  btAnswered = true;
+  const btns = document.querySelectorAll('#bt-answer-row .opt-btn');
+  btns.forEach(b => {
+    b.classList.add('disabled');
+    const label = b.textContent.replace('−','-');
+    if (label === btCurrent.type) b.classList.add('correct');
+    else if (label === guess) b.classList.add('wrong');
+  });
+  const fb = document.getElementById('bt-practice-fb');
+  if (guess === btCurrent.type) {
+    btStreak++;
+    if (btStreak > btBest) btBest = btStreak;
+    fb.className = 'feedback right show';
+    fb.textContent = '✓ Correct! ' + btCurrent.type + ' — tap "Next patient" for another.';
+  } else {
+    btStreak = 0;
+    fb.className = 'feedback wrong-f show';
+    fb.innerHTML = '✗ Not quite — the correct answer is <strong>' + btCurrent.type + '<\/strong>. ' +
+      (btCurrent.a ? 'Anti-A clumps → A antigen present. ' : 'Anti-A no clump → no A antigen. ') +
+      (btCurrent.b ? 'Anti-B clumps → B antigen present. ' : 'Anti-B no clump → no B antigen. ') +
+      (btCurrent.rh ? 'Anti-Rh clumps → Rh positive.' : 'Anti-Rh no clump → Rh negative.');
+  }
+  document.getElementById('bt-streak').textContent = btStreak;
+  document.getElementById('bt-best').textContent = btBest;
+}
+
+// Init blood typing on load
+btNext();
+
+function switchSub(id) {
+  document.querySelectorAll('.sub-tab').forEach((t,i) => t.classList.toggle('active', subKeys[i]===id));
+  document.querySelectorAll('.sub-panel').forEach(p => p.classList.toggle('active', p.id==='sub-'+id));
+}
+
+const subKeys2 = ['macro','osmo','reflex','urine','emg','thyroid','dna','wbclab','neurosim','bp'];
+function switchSub2(id) {
+  document.querySelectorAll('.sub-tab2').forEach((t,i) => t.classList.toggle('active', subKeys2[i]===id));
+  document.querySelectorAll('.sub-panel2').forEach(p => p.classList.toggle('active', p.id==='sub2-'+id));
+}
+
+// MATCHING
+const diseases = ['GERD','IBS','Gallstones','Gastric Ulcers'];
+const matchData = {
+  msym: {
+    'GERD':           'Heartburn, acid regurgitation, chest pain',
+    'IBS':            'Cramping, bloating, alternating constipation and diarrhea',
+    'Gallstones':     'Sharp RUQ pain after eating fatty food, nausea',
+    'Gastric Ulcers': 'Burning stomach pain worse on an empty stomach'
+  },
+  marea: {
+    'GERD':           'Esophagus / lower esophageal sphincter',
+    'IBS':            'Large intestine (colon)',
+    'Gallstones':     'Gallbladder',
+    'Gastric Ulcers': 'Stomach lining (mucosa)'
+  },
+  mtreat: {
+    'GERD':           'PPIs (omeprazole), antacids, lifestyle changes',
+    'IBS':            'Low-FODMAP diet, stress management, antispasmodics',
+    'Gallstones':     'Cholecystectomy (surgical removal)',
+    'Gastric Ulcers': 'PPIs + antibiotics (H. pylori); avoid NSAIDs'
+  }
+};
+
+const mState = {};
+
+function shuffle(a) {
+  const arr = [...a];
+  for (let i=arr.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[arr[i],arr[j]]=[arr[j],arr[i]];}
+  return arr;
+}
+
+function buildMatch(key) {
+  const wrap = document.getElementById(key+'-left-wrap');
+  wrap.innerHTML = '';
+  mState[key] = { selected: null, matched: 0 };
+  document.getElementById(key+'-score').textContent = '0';
+  document.getElementById(key+'-complete').classList.remove('show');
+
+  const shuffledD = shuffle(diseases);
+  const shuffledA = shuffle(diseases.map(d => matchData[key][d]));
+
+  const leftCol = document.createElement('div');
+  leftCol.className = 'match-col';
+  const rightCol = document.createElement('div');
+  rightCol.className = 'match-col';
+
+  shuffledD.forEach(d => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = d;
+    el.dataset.side = 'left';
+    el.dataset.val = d;
+    el.dataset.key = key;
+    el.onclick = () => handleMatch(el);
+    leftCol.appendChild(el);
+  });
+
+  shuffledA.forEach(a => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = a;
+    el.dataset.side = 'right';
+    el.dataset.val = a;
+    el.dataset.key = key;
+    el.onclick = () => handleMatch(el);
+    rightCol.appendChild(el);
+  });
+
+  wrap.appendChild(leftCol);
+  wrap.appendChild(rightCol);
+}
+
+function handleMatch(el) {
+  const key = el.dataset.key;
+  const st = mState[key];
+  if (el.classList.contains('matched')) return;
+
+  if (!st.selected) {
+    el.classList.add('selected');
+    st.selected = el;
+    return;
+  }
+  if (st.selected === el) {
+    el.classList.remove('selected');
+    st.selected = null;
+    return;
+  }
+  if (st.selected.dataset.side === el.dataset.side) {
+    st.selected.classList.remove('selected');
+    el.classList.add('selected');
+    st.selected = el;
+    return;
+  }
+
+  const leftEl  = st.selected.dataset.side==='left'  ? st.selected : el;
+  const rightEl = st.selected.dataset.side==='right' ? st.selected : el;
+  const disease = leftEl.dataset.val;
+  const answer  = rightEl.dataset.val;
+  const ok = matchData[key][disease] === answer;
+
+  st.selected = null;
+  leftEl.classList.remove('selected');
+  rightEl.classList.remove('selected');
+
+  if (ok) {
+    leftEl.classList.add('matched');
+    rightEl.classList.add('matched');
+    st.matched++;
+    document.getElementById(key+'-score').textContent = st.matched;
+    if (st.matched === 4) document.getElementById(key+'-complete').classList.add('show');
+  } else {
+    leftEl.classList.add('wrong-flash');
+    rightEl.classList.add('wrong-flash');
+    setTimeout(() => { leftEl.classList.remove('wrong-flash'); rightEl.classList.remove('wrong-flash'); }, 700);
+  }
+}
+
+buildMatch('msym');
+buildMatch('marea');
+buildMatch('mtreat');
+
+// GENERIC MATCHING ENGINE (macromolecules)
+const matchDataG = {
+  mmtest: {
+    keys: ["Benedict's reagent", "Iodine", "Biuret reagent", "Paper test"],
+    pairs: {
+      "Benedict's reagent": "Simple sugars — turns yellow, orange, or red",
+      "Iodine":             "Starch — turns dark blue/black",
+      "Biuret reagent":     "Protein — turns lavender or violet",
+      "Paper test":         "Lipids — leaves translucent spot when dry"
+    }
+  },
+  mmsugar: {
+    keys: ["Monosaccharide", "Disaccharide", "Polysaccharide", "Hydrolysis"],
+    pairs: {
+      "Monosaccharide":  "Single sugar molecule (e.g. glucose, fructose)",
+      "Disaccharide":    "Two sugars bonded together (e.g. sucrose, lactose)",
+      "Polysaccharide":  "3+ sugars bonded together (e.g. starch, glycogen)",
+      "Hydrolysis":      "Breaking sugar bonds using water and enzymes"
+    }
+  },
+  mmemg: {
+    keys: ["Motor unit", "Motor unit recruitment", "Interference pattern", "Muscle fatigue"],
+    pairs: {
+      "Motor unit":             "One motor neuron + all the muscle fibers it controls",
+      "Motor unit recruitment": "Activating more/larger motor units as force increases",
+      "Interference pattern":   "Overlapping EMG signal from multiple motor units firing at once",
+      "Muscle fatigue":         "Decline in force output during sustained contraction"
+    }
+  },
+  mmwbc: {
+    keys: ["Leukopenia", "Leukocytosis", "Agglutination", "Differential WBC count"],
+    pairs: {
+      "Leukopenia":            "Abnormally LOW white blood cell count",
+      "Leukocytosis":          "Abnormally HIGH white blood cell count",
+      "Agglutination":         "Clumping of RBCs due to incompatible blood type",
+      "Differential WBC count":"Breaks down the percentage of each type of WBC"
+    }
+  },
+  mmdnabp: {
+    keys: ["Adenine", "Thymine", "Cytosine", "Guanine"],
+    pairs: {
+      "Adenine":  "Thymine",
+      "Thymine":  "Adenine",
+      "Cytosine": "Guanine",
+      "Guanine":  "Cytosine"
+    }
+  },
+  mmrnabp: {
+    keys: ["Adenine", "Uracil", "Cytosine", "Guanine"],
+    pairs: {
+      "Adenine":  "Uracil",
+      "Uracil":   "Adenine",
+      "Cytosine": "Guanine",
+      "Guanine":  "Cytosine"
+    }
+  },
+  mmdna: {
+    keys: ["mRNA", "tRNA", "rRNA", "Codon"],
+    pairs: {
+      "mRNA": "Carries genetic code from nucleus to ribosome (messenger)",
+      "tRNA": "Brings amino acids to ribosome; has anti-codon on one end (transfer)",
+      "rRNA": "Makes up the structure of the ribosome itself (ribosomal)",
+      "Codon": "3-base sequence on mRNA that codes for one amino acid"
+    }
+  },
+  mmreflex: {
+    keys: ["Patellar", "Achilles", "Bicep", "Tricep", "Plantar (Babinski)"],
+    pairs: {
+      "Patellar":          "Tap below kneecap → leg kicks forward (L3-L4)",
+      "Achilles":          "Tap Achilles tendon → foot plantarflexes (S1-S2)",
+      "Bicep":             "Tap bicep tendon at elbow → forearm flexes (C5-C6)",
+      "Tricep":            "Tap tricep tendon above elbow → forearm extends (C6-C7)",
+      "Plantar (Babinski)":"Stroke bottom of foot → toes curl down in adults"
+    }
+  },
+  mmbp: {
+    keys: ["Systolic", "Diastolic", "Hypertension", "Hypotension"],
+    pairs: {
+      "Systolic":     "Pressure in arteries during heart contraction — top number",
+      "Diastolic":    "Pressure in arteries when heart is at rest — bottom number",
+      "Hypertension": "Chronically HIGH blood pressure (above 140/90 mmHg)",
+      "Hypotension":  "Abnormally LOW blood pressure — can indicate shock or blood loss"
+    }
+  },
+  mmns: {
+    keys: ["TTX (Tetrodotoxin)", "TEA (Tetraethylammonium)", "Scorpion Toxin", "Absolute Refractory Period"],
+    pairs: {
+      "TTX (Tetrodotoxin)":        "Blocks Na+ channels — no AP produced",
+      "TEA (Tetraethylammonium)":  "Blocks K+ channels — AP fires but can't repolarize",
+      "Scorpion Toxin":            "Prevents Na+ inactivation + blocks K+ — AP never comes down",
+      "Absolute Refractory Period":"Period where NO stimulus can trigger another AP"
+    }
+  },
+  mmthyroid: {
+    keys: ["TRH", "TSH", "T3/T4", "Negative feedback loop"],
+    pairs: {
+      "TRH":                    "Released by hypothalamus — signals pituitary to act",
+      "TSH":                    "Released by pituitary — tells thyroid to produce hormones",
+      "T3/T4":                  "Released by thyroid — regulate metabolism and body temperature",
+      "Negative feedback loop":  "High T3/T4 signals hypothalamus and pituitary to reduce TRH and TSH"
+    }
+  },
+  mmtools: {
+    keys: ["Macromolecules", "Osmolarity", "Reflexes", "Urinalysis", "EMG"],
+    pairs: {
+      "Macromolecules": "Benedict's, Iodine, Biuret reagents + paper test",
+      "Osmolarity":     "Lancet, microscope, NaCl solutions, slides",
+      "Reflexes":       "Reflex hammer + Neurosim software",
+      "Urinalysis":     "Refractometer + dipstick reagent strips",
+      "EMG":            "iWorx system, surface electrodes, hand grip dynamometer"
+    }
+  }
+};
+const mStateG = {};
+
+function buildMatchG(key) {
+  const data = matchDataG[key];
+  const wrap = document.getElementById(key+'-left-wrap');
+  wrap.innerHTML = '';
+  mStateG[key] = { selected: null, matched: 0, total: data.keys.length };
+  document.getElementById(key+'-score').textContent = '0';
+  document.getElementById(key+'-complete').classList.remove('show');
+
+  const shuffledK = shuffle(data.keys);
+  const shuffledV = shuffle(data.keys.map(k => data.pairs[k]));
+
+  const leftCol = document.createElement('div');
+  leftCol.className = 'match-col';
+  const rightCol = document.createElement('div');
+  rightCol.className = 'match-col';
+
+  shuffledK.forEach(k => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = k;
+    el.dataset.side = 'left'; el.dataset.val = k; el.dataset.key = key;
+    el.onclick = () => handleMatchG(el);
+    leftCol.appendChild(el);
+  });
+  shuffledV.forEach(v => {
+    const el = document.createElement('div');
+    el.className = 'match-item';
+    el.textContent = v;
+    el.dataset.side = 'right'; el.dataset.val = v; el.dataset.key = key;
+    el.onclick = () => handleMatchG(el);
+    rightCol.appendChild(el);
+  });
+  wrap.appendChild(leftCol);
+  wrap.appendChild(rightCol);
+}
+
+function handleMatchG(el) {
+  const key = el.dataset.key;
+  const st = mStateG[key];
+  const data = matchDataG[key];
+  if (el.classList.contains('matched')) return;
+  if (!st.selected) { el.classList.add('selected'); st.selected = el; return; }
+  if (st.selected === el) { el.classList.remove('selected'); st.selected = null; return; }
+  if (st.selected.dataset.side === el.dataset.side) {
+    st.selected.classList.remove('selected'); el.classList.add('selected'); st.selected = el; return;
+  }
+  const leftEl  = st.selected.dataset.side==='left'  ? st.selected : el;
+  const rightEl = st.selected.dataset.side==='right' ? st.selected : el;
+  const ok = data.pairs[leftEl.dataset.val] === rightEl.dataset.val;
+  st.selected = null;
+  leftEl.classList.remove('selected'); rightEl.classList.remove('selected');
+  if (ok) {
+    leftEl.classList.add('matched'); rightEl.classList.add('matched');
+    st.matched++;
+    document.getElementById(key+'-score').textContent = st.matched;
+    if (st.matched === st.total) document.getElementById(key+'-complete').classList.add('show');
+  } else {
+    leftEl.classList.add('wrong-flash'); rightEl.classList.add('wrong-flash');
+    setTimeout(() => { leftEl.classList.remove('wrong-flash'); rightEl.classList.remove('wrong-flash'); }, 700);
+  }
+}
+
+buildMatchG('mmtest');
+buildMatchG('mmsugar');
+buildMatchG('mmemg');
+buildMatchG('mmtools');
+buildMatchG('mmthyroid');
+buildMatchG('mmdna');
+buildMatchG('mmdnabp');
+buildMatchG('mmrnabp');
+buildMatchG('mmwbc');
+buildMatchG('mmreflex');
+buildMatchG('mmns');
+buildMatchG('mmbp');
+</script>
+</body>
+</html>
